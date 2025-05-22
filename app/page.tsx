@@ -60,7 +60,13 @@ export default function Home() {
             | undefined
         }
       />
-      <RedeemComponent />
+      <RedeemComponent
+        tokenBalances={
+          tokenBalances?.map((balance) => balance.result) as
+            | [bigint | undefined, bigint | undefined, bigint | undefined]
+            | undefined
+        }
+      />
     </div>
   );
 }
