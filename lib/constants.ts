@@ -1,5 +1,7 @@
 import { Token } from "@/types/token";
 
+export const L2SLPX_CONTRACT_ADDRESS = "0x262e52beD191a441CBD28dB151A11D7c41384F72"
+
 export const TOKEN_LIST: Token[] = [
   {
     name: "Ethereum",

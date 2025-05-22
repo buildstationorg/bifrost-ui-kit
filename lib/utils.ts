@@ -22,3 +22,7 @@ export function roundLongDecimals(string?: string, decimals?: number) {
   const stringToNumber = Number(string);
   return stringToNumber.toFixed(decimals);
 }
+
+export function truncateHash(hash: string, startLength: number = 6, endLength: number = 4) {
+  return `${hash.slice(0, startLength)}...${hash.slice(-endLength)}`;
+}

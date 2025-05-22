@@ -6,3 +6,8 @@ export interface BalancesProps {
   isTokenBalancesLoading: boolean;
   refetchTokenBalances: () => void;
 }
+
+export interface MintProps {
+  nativeBalance: bigint | undefined;
+  tokenBalances: readonly [bigint | undefined, bigint | undefined, bigint | undefined] | undefined;
+}

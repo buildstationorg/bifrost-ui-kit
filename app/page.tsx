@@ -52,7 +52,14 @@ export default function Home() {
         isTokenBalancesLoading={isTokenBalancesLoading}
         refetchTokenBalances={refetchTokenBalances}
       />
-      <MintComponent />
+      <MintComponent
+        nativeBalance={nativeBalance?.value ?? BigInt(0)}
+        tokenBalances={
+          tokenBalances?.map((balance) => balance.result) as
+            | [bigint | undefined, bigint | undefined, bigint | undefined]
+            | undefined
+        }
+      />
       <RedeemComponent />
     </div>
   );
