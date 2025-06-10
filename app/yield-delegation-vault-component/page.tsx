@@ -62,7 +62,6 @@ export default function Page() {
         refetchTokenBalances={refetchTokenBalances}
       />
       <DepositToVaultComponent
-        nativeBalance={nativeBalance?.value ?? BigInt(0)}
         tokenBalances={
           tokenBalances?.map((balance) => balance.result) as
             | [bigint | undefined, bigint | undefined, bigint | undefined]

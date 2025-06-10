@@ -17,6 +17,5 @@ export interface RedeemProps {
 }
 
 export interface DepositToVaultProps {
-  nativeBalance: bigint | undefined;
   tokenBalances: readonly [bigint | undefined, bigint | undefined, bigint | undefined] | undefined;
 }

@@ -23,7 +23,7 @@ import {
 } from "wagmi";
 import type { Token } from "@/types/token";
 import Image from "next/image";
-import { TOKEN_LIST, L2SLPX_CONTRACT_ADDRESS } from "@/lib/constants";
+import { TOKEN_LIST, L2SLPX_CONTRACT_ADDRESS, YIELD_DELEGATION_VAULT_CONTRACT_ADDRESS } from "@/lib/constants";
 import { useForm } from "@tanstack/react-form";
 import type { AnyFieldApi } from "@tanstack/react-form";
 import { Button } from "@/components/ui/button";
@@ -32,7 +32,7 @@ import { parseEther, formatEther, Address, maxUint256, erc20Abi } from "viem";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { roundLongDecimals, formatNumberStringInput, formatNumberStringWithThousandSeparators } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
-import { l2SlpxAbi } from "@/lib/abis";
+import { yieldDelegationVaultAbi } from "@/lib/abis";
 import { TransactionStatus } from "@/components/transaction-status";
 
 const tokens: Token[] = TOKEN_LIST.filter(
@@ -79,41 +79,24 @@ export default function DepositToVaultComponent({
     },
     onSubmit: async ({ value }) => {
       if (selectedToken?.symbol === "vETH") {
-        writeContract({
-          address: L2SLPX_CONTRACT_ADDRESS,
-          abi: l2SlpxAbi,
-          functionName: "createOrder",
-          value: parseEther(value.amount),
-          args: [
-            "0x0000000000000000000000000000000000000000",
-            parseEther(value.amount),
-            0,
-            "bifrost",
-          ],
-        });
-      }
-
-      if (selectedToken?.symbol === "vDOT") {
         if (availableCapabilities?.atomic?.status === "supported") {
           sendCalls({
             calls: [
               {
-                to: TOKEN_LIST.filter((token) => token.symbol === "DOT")[0]
+                to: TOKEN_LIST.filter((token) => token.symbol === "vETH")[0]
                   .address as Address,
                 abi: erc20Abi,
                 functionName: "approve",
-                args: [L2SLPX_CONTRACT_ADDRESS, parseEther(value.amount)],
+                args: [YIELD_DELEGATION_VAULT_CONTRACT_ADDRESS, parseEther(value.amount)],
               },
               {
-                to: L2SLPX_CONTRACT_ADDRESS,
-                abi: l2SlpxAbi,
-                functionName: "createOrder",
+                to: YIELD_DELEGATION_VAULT_CONTRACT_ADDRESS,
+                abi: yieldDelegationVaultAbi,
+                functionName: "deposit",
                 args: [
-                  TOKEN_LIST.filter((token) => token.symbol === "DOT")[0]
+                  TOKEN_LIST.filter((token) => token.symbol === "vETH")[0]
                     .address as Address,
-                  parseEther(value.amount),
-                  0,
-                  "bifrost",
+                  parseEther(value.amount)
                 ],
               },
             ],
@@ -123,7 +106,7 @@ export default function DepositToVaultComponent({
         if (availableCapabilities?.atomic?.status !== "supported") {
           if (tokenAllowance === BigInt(0)) {
             writeContract({
-              address: TOKEN_LIST.filter((token) => token.symbol === "DOT")[0]
+              address: TOKEN_LIST.filter((token) => token.symbol === "vETH")[0]
                 .address as Address,
               abi: erc20Abi,
               functionName: "approve",
@@ -133,15 +116,64 @@ export default function DepositToVaultComponent({
 
           if (tokenAllowance && tokenAllowance >= parseEther(value.amount)) {
             writeContract({
-              address: L2SLPX_CONTRACT_ADDRESS,
-              abi: l2SlpxAbi,
-              functionName: "createOrder",
+              address: YIELD_DELEGATION_VAULT_CONTRACT_ADDRESS,
+              abi: yieldDelegationVaultAbi,
+              functionName: "deposit",
               args: [
-                TOKEN_LIST.filter((token) => token.symbol === "DOT")[0]
+                TOKEN_LIST.filter((token) => token.symbol === "vETH")[0]
                   .address as Address,
-                parseEther(value.amount),
-                0,
-                "bifrost",
+                parseEther(value.amount)
+              ],
+            });
+          }
+        }
+      }
+
+      if (selectedToken?.symbol === "vDOT") {
+        if (availableCapabilities?.atomic?.status === "supported") {
+          sendCalls({
+            calls: [
+              {
+                to: TOKEN_LIST.filter((token) => token.symbol === "vDOT")[0]
+                  .address as Address,
+                abi: erc20Abi,
+                functionName: "approve",
+                args: [YIELD_DELEGATION_VAULT_CONTRACT_ADDRESS, parseEther(value.amount)],
+              },
+              {
+                to: YIELD_DELEGATION_VAULT_CONTRACT_ADDRESS,
+                abi: yieldDelegationVaultAbi,
+                functionName: "deposit",
+                args: [
+                  TOKEN_LIST.filter((token) => token.symbol === "vDOT")[0]
+                    .address as Address,
+                  parseEther(value.amount)
+                ],
+              },
+            ],
+          });
+        }
+
+        if (availableCapabilities?.atomic?.status !== "supported") {
+          if (tokenAllowance === BigInt(0)) {
+            writeContract({
+              address: TOKEN_LIST.filter((token) => token.symbol === "vDOT")[0]
+                .address as Address,
+              abi: erc20Abi,
+              functionName: "approve",
+              args: [YIELD_DELEGATION_VAULT_CONTRACT_ADDRESS, maxUint256],
+            });
+          }
+
+          if (tokenAllowance && tokenAllowance >= parseEther(value.amount)) {
+            writeContract({
+              address: YIELD_DELEGATION_VAULT_CONTRACT_ADDRESS,
+              abi: yieldDelegationVaultAbi,
+              functionName: "deposit",
+              args: [
+                TOKEN_LIST.filter((token) => token.symbol === "vDOT")[0]
+                  .address as Address,
+                parseEther(value.amount)
               ],
             });
           }
@@ -229,8 +261,8 @@ export default function DepositToVaultComponent({
                       ? "Amount must be greater than 0"
                       : parseEther(value) >
                         (selectedToken?.symbol === "vETH"
-                          ? nativeBalance ?? BigInt(0)
-                          : tokenBalances?.[0] ?? BigInt(0))
+                          ? tokenBalances?.[1] ?? BigInt(0)
+                          : tokenBalances?.[2] ?? BigInt(0))
                       ? "Amount must be less than or equal to your balance"
                       : undefined,
                 }}
@@ -244,10 +276,10 @@ export default function DepositToVaultComponent({
                         className="bg-transparent border border-muted-foreground text-muted-foreground rounded-md px-2 py-0.5 hover:cursor-pointer"
                         onClick={() => {
                           if (selectedToken?.symbol === "vETH") {
-                            field.handleChange(formatEther(nativeBalance ?? BigInt(0)));
+                            field.handleChange(formatEther(tokenBalances?.[1] ?? BigInt(0)));
                           }
                           if (selectedToken?.symbol === "vDOT") {
-                            field.handleChange(formatEther(tokenBalances?.[0] ?? BigInt(0)));
+                            field.handleChange(formatEther(tokenBalances?.[2] ?? BigInt(0)));
                           }
                         }}
                       >
@@ -265,9 +297,7 @@ export default function DepositToVaultComponent({
                             field.handleChange(rawValue);
                           }}
                           className="bg-transparent text-4xl outline-none w-full [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                          type="text"
-                          inputMode="decimal"
-                          pattern="[0-9,]*"
+                          type="number"
                           placeholder="0"
                           required
                         />
@@ -290,9 +320,9 @@ export default function DepositToVaultComponent({
                       )}
                       <p className="place-self-end text-lg text-muted-foreground">
                         {selectedToken?.symbol === "vETH"
-                          ? "ETH"
+                          ? "vETH"
                           : selectedToken?.symbol === "vDOT"
-                          ? "DOT"
+                          ? "vDOT"
                           : "-"}
                       </p>
                     </div>
@@ -300,18 +330,18 @@ export default function DepositToVaultComponent({
                       {selectedToken?.symbol === "vETH" ? (
                         <p className="text-muted-foreground">
                           {formatNumberStringWithThousandSeparators(roundLongDecimals(
-                            formatEther(nativeBalance ?? BigInt(0)),
+                            formatEther(tokenBalances?.[1] ?? BigInt(0)),
                             6
                           ))}{" "}
-                          ETH
+                          vETH
                         </p>
                       ) : selectedToken?.symbol === "vDOT" ? (
                         <p className="text-muted-foreground">
                           {formatNumberStringWithThousandSeparators(roundLongDecimals(
-                            formatEther(tokenBalances?.[0] ?? BigInt(0)),
+                            formatEther(tokenBalances?.[2] ?? BigInt(0)),
                             6
                           ))}{" "}
-                          DOT
+                          vDOT
                         </p>
                       ) : (
                         <p className="text-muted-foreground">-</p>
