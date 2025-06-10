@@ -15,3 +15,8 @@ export interface MintProps {
 export interface RedeemProps {
   tokenBalances: readonly [bigint | undefined, bigint | undefined, bigint | undefined] | undefined;
 }
+
+export interface DepositToVaultProps {
+  nativeBalance: bigint | undefined;
+  tokenBalances: readonly [bigint | undefined, bigint | undefined, bigint | undefined] | undefined;
+}

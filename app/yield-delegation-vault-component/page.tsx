@@ -1,5 +1,6 @@
 "use client";
 import BalancesComponent from "@/components/balances-component";
+import DepositToVaultComponent from "@/components/deposit-to-vault-component";
 import { useBalance, useAccount, useReadContracts } from "wagmi";
 import { erc20Abi, Address } from "viem";
 import { TOKEN_LIST } from "@/lib/constants";
@@ -60,12 +61,14 @@ export default function Page() {
         isTokenBalancesLoading={isTokenBalancesLoading}
         refetchTokenBalances={refetchTokenBalances}
       />
-      <div className="flex flex-col gap-4">
-        <h1 className="text-2xl font-bold">Yield Delegation Vault Component</h1>
-      </div>
-      <div className="flex flex-col gap-4">
-        <h1 className="text-2xl font-bold">Yield Delegation Vault Component</h1>
-      </div>
+      <DepositToVaultComponent
+        nativeBalance={nativeBalance?.value ?? BigInt(0)}
+        tokenBalances={
+          tokenBalances?.map((balance) => balance.result) as
+            | [bigint | undefined, bigint | undefined, bigint | undefined]
+            | undefined
+        }
+      />
     </div>
   );
 }
