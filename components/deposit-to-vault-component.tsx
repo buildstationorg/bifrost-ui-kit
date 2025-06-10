@@ -40,7 +40,6 @@ const tokens: Token[] = TOKEN_LIST.filter(
 );
 
 export default function DepositToVaultComponent({
-  nativeBalance,
   tokenBalances,
 }: DepositToVaultProps) {
   const isDesktop = useMediaQuery("(min-width: 768px)");

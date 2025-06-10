@@ -1,6 +1,7 @@
 "use client";
 import BalancesComponent from "@/components/balances-component";
 import DepositToVaultComponent from "@/components/deposit-to-vault-component";
+import VaultDepositsManagementComponent from "@/components/vault-deposits-management-component";
 import { useBalance, useAccount, useReadContracts } from "wagmi";
 import { erc20Abi, Address } from "viem";
 import { TOKEN_LIST } from "@/lib/constants";
@@ -68,6 +69,7 @@ export default function Page() {
             | undefined
         }
       />
+      <VaultDepositsManagementComponent />
     </div>
   );
 }
