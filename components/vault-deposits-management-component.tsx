@@ -42,6 +42,26 @@ import {
 } from "lucide-react";
 import { l2SlpxAbi, yieldDelegationVaultAbi } from "@/lib/abis";
 import { TransactionStatus } from "@/components/transaction-status";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+  DialogClose,
+} from "@/components/ui/dialog"
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer"
 
 const tokens: Token[] = TOKEN_LIST.filter(
   (token) => token.symbol === "vDOT" || token.symbol === "vETH"
@@ -49,8 +69,6 @@ const tokens: Token[] = TOKEN_LIST.filter(
 
 export default function VaultDepositsManagementComponent() {
   const isDesktop = useMediaQuery("(min-width: 768px)");
-  const [selectedToken, setSelectedToken] = useState<Token | null>(null);
-  const [open, setOpen] = useState(false);
   const config = useConfig();
   const chainId = useChainId();
   const { address } = useAccount();
@@ -93,8 +111,6 @@ export default function VaultDepositsManagementComponent() {
       },
     ],
   });
-
-  const { data: hash, error, isPending, writeContract } = useWriteContract();
 
   // Batching
   // const {
@@ -302,6 +318,8 @@ export default function VaultDepositsManagementComponent() {
 }
 
 function VaultDepositInfo({ depositId }: { depositId: bigint }) {
+  const isDesktop = useMediaQuery("(min-width: 768px)");
+
   const {
     data: vaultDepositRecord,
     isLoading: isVaultDepositRecordLoading,
@@ -340,10 +358,51 @@ function VaultDepositInfo({ depositId }: { depositId: bigint }) {
           >
             <RefreshCcw />
           </Button>
-          <Button className="hover:cursor-pointer">
-            <BanknoteArrowDown />
-            Withdraw
-          </Button>
+          {
+            isDesktop ? (
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button className="hover:cursor-pointer">
+                    <BanknoteArrowDown />
+                    Withdraw
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Are you absolutely sure?</DialogTitle>
+                    <DialogDescription>This action cannot be undone.</DialogDescription>
+                  </DialogHeader>
+                  <DialogFooter>
+                    <Button>Submit</Button>
+                    <DialogClose asChild>
+                      <Button variant="outline">Cancel</Button>
+                    </DialogClose>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            ) : (
+              <Drawer>
+                <DrawerTrigger asChild>
+                  <Button className="hover:cursor-pointer">
+                    <BanknoteArrowDown />
+                    Withdraw
+                  </Button>
+                </DrawerTrigger>
+                <DrawerContent>
+                  <DrawerHeader>
+                    <DrawerTitle>Are you absolutely sure?</DrawerTitle>
+                    <DrawerDescription>This action cannot be undone.</DrawerDescription>
+                  </DrawerHeader>
+                  <DrawerFooter>
+                    <Button>Submit</Button>
+                    <DrawerClose>
+                      <Button variant="outline">Cancel</Button>
+                    </DrawerClose>
+                  </DrawerFooter>
+                </DrawerContent>
+              </Drawer>
+            )
+          }
         </div>
       </div>
       <div className="flex flex-col gap-2 items-end">
