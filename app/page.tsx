@@ -1,72 +1,27 @@
-"use client";
-
-import BalancesComponent from "@/components/balances-component";
-import MintComponent from "@/components/mint-component";
-import RedeemComponent from "@/components/redeem-component";
-import { useBalance, useAccount, useReadContracts } from "wagmi";
-import { erc20Abi, Address } from "viem";
-import { TOKEN_LIST } from "@/lib/constants";
-
-
+import Link from "next/link";
+import { ArrowRight } from 'lucide-react';
 
 export default function Home() {
-  const { address } = useAccount();
-
-  const { data: nativeBalance, isLoading: isLoadingNativeBalance, refetch: refetchNativeBalance } = useBalance({
-    address: address,
-  })
-
-  const { data: tokenBalances, isLoading: isTokenBalancesLoading, refetch: refetchTokenBalances } = useReadContracts({
-    contracts: [
-      // DOT
-      {
-        abi: erc20Abi,
-        address: TOKEN_LIST.filter(token => token.symbol === "DOT")[0].address as Address,
-        functionName: "balanceOf",
-        args: [address as Address],
-      },
-      // vETH
-      {
-        abi: erc20Abi,
-        address: TOKEN_LIST.filter(token => token.symbol === "vETH")[0].address as Address,
-        functionName: "balanceOf",
-        args: [address as Address],
-      },
-      // vDOT
-      {
-        abi: erc20Abi,
-        address: TOKEN_LIST.filter(token => token.symbol === "vDOT")[0].address as Address,
-        functionName: "balanceOf",
-        args: [address as Address],
-      },
-    ],
-  })
-
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <BalancesComponent
-        nativeBalance={nativeBalance?.value ?? BigInt(0)}
-        isNativeBalanceLoading={isLoadingNativeBalance}
-        refetchNativeBalance={refetchNativeBalance}
-        tokenBalances={tokenBalances?.map(token => token.result ?? BigInt(0)) ?? []}
-        isTokenBalancesLoading={isTokenBalancesLoading}
-        refetchTokenBalances={refetchTokenBalances}
-      />
-      <MintComponent
-        nativeBalance={nativeBalance?.value ?? BigInt(0)}
-        tokenBalances={
-          tokenBalances?.map((balance) => balance.result) as
-            | [bigint | undefined, bigint | undefined, bigint | undefined]
-            | undefined
-        }
-      />
-      <RedeemComponent
-        tokenBalances={
-          tokenBalances?.map((balance) => balance.result) as
-            | [bigint | undefined, bigint | undefined, bigint | undefined]
-            | undefined
-        }
-      />
+    <div className="flex flex-col gap-4 items-center justify-center h-screen">
+      <div className="flex flex-col gap-2 items-center">
+        <h1 className="text-4xl font-bold">Bifrost Components</h1>
+        <p className="text-lg">A collection of components for interacting with Bifrost protocol</p>
+      </div>
+      <div className="flex flex-col gap-4">
+        <Link href="/mint-redeem-component">
+          <div className="flex flex-row gap-2 items-center border rounded-lg p-4 transition-all duration-200 hover:-translate-y-1 hover:shadow-lg hover:shadow-foreground/10">
+            Mint and Redeem Component
+            <ArrowRight className="w-4 h-4" />
+          </div>
+        </Link>
+        <Link href="/yield-delegation-vault-component">
+          <div className="flex flex-row gap-2 items-center border rounded-lg p-4 transition-all duration-200 hover:-translate-y-1 hover:shadow-lg hover:shadow-foreground/10">
+            Yield Delegation Vault Component
+            <ArrowRight className="w-4 h-4" />
+          </div>
+        </Link>
+      </div>
     </div>
   );
 }
