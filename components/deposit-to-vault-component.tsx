@@ -30,7 +30,7 @@ import { Button } from "@/components/ui/button";
 import { DepositToVaultProps } from "@/types/shared";
 import { parseEther, formatEther, Address, maxUint256, erc20Abi } from "viem";
 import { useMediaQuery } from "@/hooks/use-media-query";
-import { roundLongDecimals } from "@/lib/utils";
+import { roundLongDecimals, formatNumberStringInput, formatNumberStringWithThousandSeparators } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
 import { l2SlpxAbi } from "@/lib/abis";
 import { TransactionStatus } from "@/components/transaction-status";
@@ -212,7 +212,7 @@ export default function DepositToVaultComponent({
             </SelectTrigger>
             <SelectContent>
               {tokens.map((token) => (
-                <SelectMintToken key={token.symbol} token={token} />
+                <SelectDepositToken key={token.symbol} token={token} />
               ))}
             </SelectContent>
           </Select>
@@ -238,8 +238,19 @@ export default function DepositToVaultComponent({
                 {(field) => (
                   <div className="flex flex-col gap-2">
                     <div className="flex flex-row gap-2 items-center justify-between">
-                      <p className="text-muted-foreground">Minting</p>
-                      <button className="bg-transparent border border-muted-foreground text-muted-foreground rounded-md px-2 py-0.5 hover:cursor-pointer">
+                      <p className="text-muted-foreground">Depositing</p>
+                      <button
+                        type="button"
+                        className="bg-transparent border border-muted-foreground text-muted-foreground rounded-md px-2 py-0.5 hover:cursor-pointer"
+                        onClick={() => {
+                          if (selectedToken?.symbol === "vETH") {
+                            field.handleChange(formatEther(nativeBalance ?? BigInt(0)));
+                          }
+                          if (selectedToken?.symbol === "vDOT") {
+                            field.handleChange(formatEther(tokenBalances?.[0] ?? BigInt(0)));
+                          }
+                        }}
+                      >
                         Max
                       </button>
                     </div>
@@ -248,10 +259,15 @@ export default function DepositToVaultComponent({
                         <input
                           id={field.name}
                           name={field.name}
-                          value={field.state.value || ""}
-                          onChange={(e) => field.handleChange(e.target.value)}
+                          value={field.state.value ? formatNumberStringInput(field.state.value) : ""}
+                          onChange={(e) => {
+                            const rawValue = e.target.value.replace(/,/g, '');
+                            field.handleChange(rawValue);
+                          }}
                           className="bg-transparent text-4xl outline-none w-full [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                          type="number"
+                          type="text"
+                          inputMode="decimal"
+                          pattern="[0-9,]*"
                           placeholder="0"
                           required
                         />
@@ -259,10 +275,13 @@ export default function DepositToVaultComponent({
                         <input
                           id={field.name}
                           name={field.name}
-                          value={field.state.value || ""}
-                          onChange={(e) => field.handleChange(e.target.value)}
+                          value={field.state.value ? formatNumberStringInput(field.state.value) : ""}
+                          onChange={(e) => {
+                            const rawValue = e.target.value.replace(/,/g, '');
+                            field.handleChange(rawValue);
+                          }}
                           className="bg-transparent text-4xl outline-none w-full [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                          type="number"
+                          type="text"
                           inputMode="decimal"
                           pattern="[0-9]*"
                           placeholder="0"
@@ -280,18 +299,18 @@ export default function DepositToVaultComponent({
                     <div className="flex flex-row gap-2">
                       {selectedToken?.symbol === "vETH" ? (
                         <p className="text-muted-foreground">
-                          {roundLongDecimals(
+                          {formatNumberStringWithThousandSeparators(roundLongDecimals(
                             formatEther(nativeBalance ?? BigInt(0)),
                             6
-                          )}{" "}
+                          ))}{" "}
                           ETH
                         </p>
                       ) : selectedToken?.symbol === "vDOT" ? (
                         <p className="text-muted-foreground">
-                          {roundLongDecimals(
+                          {formatNumberStringWithThousandSeparators(roundLongDecimals(
                             formatEther(tokenBalances?.[0] ?? BigInt(0)),
                             6
-                          )}{" "}
+                          ))}{" "}
                           DOT
                         </p>
                       ) : (
@@ -335,7 +354,7 @@ export default function DepositToVaultComponent({
                   selectedToken?.symbol === "vDOT" ? (
                   <>Approve</>
                 ) : (
-                  <>Mint</>
+                  <>Deposit</>
                 )}
               </Button>
             )}
@@ -381,7 +400,7 @@ function FieldInfo({ field }: { field: AnyFieldApi }) {
   );
 }
 
-function SelectMintToken({ token }: { token: Token }) {
+function SelectDepositToken({ token }: { token: Token }) {
   return (
     <SelectItem value={token.symbol}>
       <div className="flex flex-row gap-2 items-center justify-center">

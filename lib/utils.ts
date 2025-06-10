@@ -26,3 +26,33 @@ export function roundLongDecimals(string?: string, decimals?: number) {
 export function truncateHash(hash: string, startLength: number = 6, endLength: number = 4) {
   return `${hash.slice(0, startLength)}...${hash.slice(-endLength)}`;
 }
+
+export function formatNumberStringInput(value: string) {
+  if (value === "") {
+    return "";
+  }
+
+  // Split by decimal point
+  const parts = value.split(".")
+
+  // Format the integer part with commas
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+
+  // Join back with decimal point if there was one
+  return parts.join(".")
+}
+
+export function formatNumberStringWithThousandSeparators(value: string) {
+  if (value === "") {
+    return "";
+  }
+
+  // Split by decimal point
+  const parts = value.split(".")
+
+  // Format the integer part with commas
+  parts[0] = Number(parts[0]).toLocaleString();
+
+  // Join back with decimal point if there was one
+  return parts.join(".")
+}
