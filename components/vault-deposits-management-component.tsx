@@ -228,6 +228,7 @@ export default function VaultDepositsManagementComponent() {
         <div className="flex flex-row items-center justify-between">
           <h2 className="text-xl font-bold">Overview</h2>
           <Button
+            className="hover:cursor-pointer"
             variant="secondary"
             size="icon"
             onClick={() => refetchDataBatch()}
@@ -332,13 +333,14 @@ function VaultDepositInfo({ depositId }: { depositId: bigint }) {
         </h2>
         <div className="flex flex-row items-center gap-2">
           <Button
+            className="hover:cursor-pointer"
             variant="secondary"
             size="icon"
             onClick={() => refetchVaultDepositRecord()}
           >
             <RefreshCcw />
           </Button>
-          <Button>
+          <Button className="hover:cursor-pointer">
             <BanknoteArrowDown />
             Withdraw
           </Button>
