@@ -15,6 +15,7 @@ import {
   useCallsStatus,
   useReadContracts,
 } from "wagmi";
+import { Skeleton } from "@/components/ui/skeleton";
 import type { Token } from "@/types/token";
 import Image from "next/image";
 import {
@@ -32,7 +33,7 @@ import {
   formatNumberStringInput,
   formatNumberStringWithThousandSeparators,
 } from "@/lib/utils";
-import { Loader2, RefreshCcw, ArrowLeftRight } from "lucide-react";
+import { Loader2, RefreshCcw, ArrowLeftRight, BanknoteArrowDown } from "lucide-react";
 import { l2SlpxAbi, yieldDelegationVaultAbi } from "@/lib/abis";
 import { TransactionStatus } from "@/components/transaction-status";
 
@@ -229,35 +230,59 @@ export default function VaultDepositsManagementComponent() {
         <div className="grid grid-cols-2 gap-4">
           <div className="flex flex-col gap-2 border border-muted-accent rounded-md p-4">
             <h2 className="text-md font-bold">vETH/ETH</h2>
-            <p className="text-xl text-muted-foreground">
-              {formatEther(
-                dataBatch?.[1]?.result?.tokenConversionRate ?? BigInt(0)
-              )}
-            </p>
+            {
+              isDataBatchLoading ? (
+                <Skeleton className="w-[50px] h-[20px] rounded-md" />
+              ) : (
+                <p className="text-xl text-muted-foreground">
+                  {formatEther(dataBatch?.[1]?.result?.tokenConversionRate ?? BigInt(0))}
+                </p>
+              )
+            }
           </div>
           <div className="flex flex-col gap-2 border border-muted-accent rounded-md p-4">
             <h2 className="text-md font-bold">vDOT/DOT</h2>
-            <p className="text-xl text-muted-foreground">
-              {formatEther(
-                dataBatch?.[2]?.result?.tokenConversionRate ?? BigInt(0)
-              )}
-            </p>
+            {
+              isDataBatchLoading ? (
+                <Skeleton className="w-[50px] h-[20px] rounded-md" />
+              ) : (
+                <p className="text-xl text-muted-foreground">
+                  {formatEther(dataBatch?.[2]?.result?.tokenConversionRate ?? BigInt(0))}
+                </p>
+              )
+            }
           </div>
         </div>
         <div className="col-span-2 flex flex-col gap-2 border border-muted-accent rounded-md p-4">
           <h2 className="text-md font-bold">Number of Deposits</h2>
-          <p className="text-xl text-muted-foreground">
-            {dataBatch?.[0]?.result?.totalNumberOfDeposits.toString()}
-          </p>
+          {
+            isDataBatchLoading ? (
+              <Skeleton className="w-[50px] h-[20px] rounded-md" />
+            ) : (
+              <p className="text-xl text-muted-foreground">
+                {dataBatch?.[0]?.result?.totalNumberOfDeposits.toString()}
+              </p>
+            )
+          }
         </div>
         <div className="flex flex-col gap-2">
           <h2 className="text-xl font-bold">Deposits</h2>
           {
-            dataBatch?.[0]?.result?.depositIds.map((depositId) => {
-              return (
-                <VaultDepositInfo key={depositId} depositId={depositId} />
-              )
-            })
+            isDataBatchLoading ? (
+              Array.from({ length: 4 }).map((_, index) => (
+                <Skeleton key={index} className="w-full h-[120px] rounded-md" />
+              ))
+            ) : (
+              <>
+                {
+                  dataBatch?.[0]?.result?.depositIds.map((depositId) => {
+                    return (
+                      <VaultDepositInfo key={depositId} depositId={depositId} />
+                    )
+                  })
+                }
+              </>
+            )
           }
         </div>
       </div>
@@ -288,25 +313,40 @@ function VaultDepositInfo({ depositId }: { depositId: bigint }) {
     <div className="flex flex-col gap-2 border border-muted-accent rounded-md p-4">
       <div className="flex flex-row items-center justify-between">
         <h2 className="text-md font-bold text-center bg-primary text-secondary rounded-md px-2 py-1 w-fit">{depositId}</h2>
-        
-        <Button variant="secondary" size="icon" onClick={() => refetchVaultDepositRecord()}>
-          <RefreshCcw />
-        </Button>
+        <div className="flex flex-row items-center gap-2">
+          <Button variant="secondary" size="icon" onClick={() => refetchVaultDepositRecord()}>
+            <RefreshCcw />
+          </Button>
+          <Button>
+            <BanknoteArrowDown />
+            Withdraw
+          </Button>
+        </div>
       </div>
       <div className="flex flex-col gap-2 items-end">
-        <div className="flex flex-row items-end gap-2">
-          <p className="text-3xl font-bold">
-            {formatEther(vaultDepositRecord?.amountDeposited ?? BigInt(0))}
-          </p>
-          <p className="text-xl font-medium">
-            {formatTokenAddress(vaultDepositRecord?.tokenAddress ?? "0x0000000000000000000000000000000000000000")}
-          </p>
-        </div>
-
-        <div className="flex flex-row items-center gap-2">
-          <p className="text-lg text-muted-foreground">{formatEther(vaultDepositRecord?.depositConversionRate ?? BigInt(0))}</p>
-          <ArrowLeftRight className="w-4 h-4 text-muted-foreground" />
-        </div>
+        {
+          isVaultDepositRecordLoading ? (
+            <>
+              <Skeleton className="w-[100px] h-[30px] rounded-md" />
+              <Skeleton className="w-[100px] h-[18px] rounded-md" />
+            </>
+          ) : (
+            <>
+              <div className="flex flex-row items-end gap-2">
+                <p className="text-3xl font-bold">
+                  {formatEther(vaultDepositRecord?.amountDeposited ?? BigInt(0))}
+                </p>
+                <p className="text-xl font-medium">
+                  {formatTokenAddress(vaultDepositRecord?.tokenAddress ?? "0x0000000000000000000000000000000000000000")}
+                </p>
+              </div>
+              <div className="flex flex-row items-center gap-2">
+                <p className="text-lg text-muted-foreground">{formatEther(vaultDepositRecord?.depositConversionRate ?? BigInt(0))}</p>
+                <ArrowLeftRight className="w-4 h-4 text-muted-foreground" />
+              </div>
+            </>
+          )
+        }
       </div>
     </div>
   );
