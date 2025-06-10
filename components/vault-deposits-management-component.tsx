@@ -33,7 +33,13 @@ import {
   formatNumberStringInput,
   formatNumberStringWithThousandSeparators,
 } from "@/lib/utils";
-import { Loader2, RefreshCcw, ArrowLeftRight, BanknoteArrowDown } from "lucide-react";
+import {
+  Loader2,
+  RefreshCcw,
+  ArrowLeftRight,
+  BanknoteArrowDown,
+  OctagonAlert,
+} from "lucide-react";
 import { l2SlpxAbi, yieldDelegationVaultAbi } from "@/lib/abis";
 import { TransactionStatus } from "@/components/transaction-status";
 
@@ -87,8 +93,6 @@ export default function VaultDepositsManagementComponent() {
       },
     ],
   });
-
-  console.log(dataBatch);
 
   const { data: hash, error, isPending, writeContract } = useWriteContract();
 
@@ -223,67 +227,73 @@ export default function VaultDepositsManagementComponent() {
       <div className="flex flex-col gap-4">
         <div className="flex flex-row items-center justify-between">
           <h2 className="text-xl font-bold">Overview</h2>
-          <Button variant="secondary" size="icon" onClick={() => refetchDataBatch()}>
+          <Button
+            variant="secondary"
+            size="icon"
+            onClick={() => refetchDataBatch()}
+          >
             <RefreshCcw />
           </Button>
         </div>
+        {isDataBatchError && (
+          <div className="flex flex-row gap-2 items-center bg-red-500 p-2 text-secondary">
+            <OctagonAlert className="w-4 h-4" />
+            <p className="text-lg font-bold">
+              {dataBatchError?.message}
+            </p>
+          </div>
+        )}
         <div className="grid grid-cols-2 gap-4">
           <div className="flex flex-col gap-2 border border-muted-accent rounded-md p-4">
             <h2 className="text-md font-bold">vETH/ETH</h2>
-            {
-              isDataBatchLoading ? (
-                <Skeleton className="w-[50px] h-[20px] rounded-md" />
-              ) : (
-                <p className="text-xl text-muted-foreground">
-                  {formatEther(dataBatch?.[1]?.result?.tokenConversionRate ?? BigInt(0))}
-                </p>
-              )
-            }
+            {isDataBatchLoading ? (
+              <Skeleton className="w-[50px] h-[20px] rounded-md" />
+            ) : (
+              <p className="text-xl text-muted-foreground">
+                {formatEther(
+                  dataBatch?.[1]?.result?.tokenConversionRate ?? BigInt(0)
+                )}
+              </p>
+            )}
           </div>
           <div className="flex flex-col gap-2 border border-muted-accent rounded-md p-4">
             <h2 className="text-md font-bold">vDOT/DOT</h2>
-            {
-              isDataBatchLoading ? (
-                <Skeleton className="w-[50px] h-[20px] rounded-md" />
-              ) : (
-                <p className="text-xl text-muted-foreground">
-                  {formatEther(dataBatch?.[2]?.result?.tokenConversionRate ?? BigInt(0))}
-                </p>
-              )
-            }
+            {isDataBatchLoading ? (
+              <Skeleton className="w-[50px] h-[20px] rounded-md" />
+            ) : (
+              <p className="text-xl text-muted-foreground">
+                {formatEther(
+                  dataBatch?.[2]?.result?.tokenConversionRate ?? BigInt(0)
+                )}
+              </p>
+            )}
           </div>
         </div>
         <div className="col-span-2 flex flex-col gap-2 border border-muted-accent rounded-md p-4">
           <h2 className="text-md font-bold">Number of Deposits</h2>
-          {
-            isDataBatchLoading ? (
-              <Skeleton className="w-[50px] h-[20px] rounded-md" />
-            ) : (
-              <p className="text-xl text-muted-foreground">
-                {dataBatch?.[0]?.result?.totalNumberOfDeposits.toString()}
-              </p>
-            )
-          }
+          {isDataBatchLoading ? (
+            <Skeleton className="w-[50px] h-[20px] rounded-md" />
+          ) : (
+            <p className="text-xl text-muted-foreground">
+              {dataBatch?.[0]?.result?.totalNumberOfDeposits.toString()}
+            </p>
+          )}
         </div>
         <div className="flex flex-col gap-2">
           <h2 className="text-xl font-bold">Deposits</h2>
-          {
-            isDataBatchLoading ? (
-              Array.from({ length: 4 }).map((_, index) => (
-                <Skeleton key={index} className="w-full h-[120px] rounded-md" />
-              ))
-            ) : (
-              <>
-                {
-                  dataBatch?.[0]?.result?.depositIds.map((depositId) => {
-                    return (
-                      <VaultDepositInfo key={depositId} depositId={depositId} />
-                    )
-                  })
-                }
-              </>
-            )
-          }
+          {isDataBatchLoading ? (
+            Array.from({ length: 4 }).map((_, index) => (
+              <Skeleton key={index} className="w-full h-[120px] rounded-md" />
+            ))
+          ) : (
+            <>
+              {dataBatch?.[0]?.result?.depositIds.map((depositId) => {
+                return (
+                  <VaultDepositInfo key={depositId} depositId={depositId} />
+                );
+              })}
+            </>
+          )}
         </div>
       </div>
     </div>
@@ -291,8 +301,13 @@ export default function VaultDepositsManagementComponent() {
 }
 
 function VaultDepositInfo({ depositId }: { depositId: bigint }) {
-
-  const { data: vaultDepositRecord, isLoading: isVaultDepositRecordLoading, isError: isVaultDepositRecordError, error: vaultDepositRecordError, refetch: refetchVaultDepositRecord } = useReadContract({
+  const {
+    data: vaultDepositRecord,
+    isLoading: isVaultDepositRecordLoading,
+    isError: isVaultDepositRecordError,
+    error: vaultDepositRecordError,
+    refetch: refetchVaultDepositRecord,
+  } = useReadContract({
     address: YIELD_DELEGATION_VAULT_CONTRACT_ADDRESS,
     abi: yieldDelegationVaultAbi,
     functionName: "getVaultDepositRecord",
@@ -312,9 +327,15 @@ function VaultDepositInfo({ depositId }: { depositId: bigint }) {
   return (
     <div className="flex flex-col gap-2 border border-muted-accent rounded-md p-4">
       <div className="flex flex-row items-center justify-between">
-        <h2 className="text-md font-bold text-center bg-primary text-secondary rounded-md px-2 py-1 w-fit">{depositId}</h2>
+        <h2 className="text-md font-bold text-center bg-primary text-secondary rounded-md px-2 py-1 w-fit">
+          {depositId}
+        </h2>
         <div className="flex flex-row items-center gap-2">
-          <Button variant="secondary" size="icon" onClick={() => refetchVaultDepositRecord()}>
+          <Button
+            variant="secondary"
+            size="icon"
+            onClick={() => refetchVaultDepositRecord()}
+          >
             <RefreshCcw />
           </Button>
           <Button>
@@ -324,29 +345,40 @@ function VaultDepositInfo({ depositId }: { depositId: bigint }) {
         </div>
       </div>
       <div className="flex flex-col gap-2 items-end">
-        {
-          isVaultDepositRecordLoading ? (
-            <>
-              <Skeleton className="w-[100px] h-[30px] rounded-md" />
-              <Skeleton className="w-[100px] h-[18px] rounded-md" />
-            </>
-          ) : (
-            <>
-              <div className="flex flex-row items-end gap-2">
-                <p className="text-3xl font-bold">
-                  {formatEther(vaultDepositRecord?.amountDeposited ?? BigInt(0))}
-                </p>
-                <p className="text-xl font-medium">
-                  {formatTokenAddress(vaultDepositRecord?.tokenAddress ?? "0x0000000000000000000000000000000000000000")}
-                </p>
-              </div>
-              <div className="flex flex-row items-center gap-2">
-                <p className="text-lg text-muted-foreground">{formatEther(vaultDepositRecord?.depositConversionRate ?? BigInt(0))}</p>
-                <ArrowLeftRight className="w-4 h-4 text-muted-foreground" />
-              </div>
-            </>
-          )
-        }
+        {isVaultDepositRecordError && (
+          <div className="flex flex-row gap-2 items-center bg-red-500 p-2 text-secondary">
+            <OctagonAlert className="w-4 h-4" />
+            <p className="text-lg font-bold">{vaultDepositRecordError?.message}</p>
+          </div>
+        )} 
+        {isVaultDepositRecordLoading ? (
+          <>
+            <Skeleton className="w-[100px] h-[30px] rounded-md" />
+            <Skeleton className="w-[100px] h-[18px] rounded-md" />
+          </>
+        ) : (
+          <>
+            <div className="flex flex-row items-end gap-2">
+              <p className="text-3xl font-bold">
+                {formatEther(vaultDepositRecord?.amountDeposited ?? BigInt(0))}
+              </p>
+              <p className="text-xl font-medium">
+                {formatTokenAddress(
+                  vaultDepositRecord?.tokenAddress ??
+                    "0x0000000000000000000000000000000000000000"
+                )}
+              </p>
+            </div>
+            <div className="flex flex-row items-center gap-2">
+              <p className="text-lg text-muted-foreground">
+                {formatEther(
+                  vaultDepositRecord?.depositConversionRate ?? BigInt(0)
+                )}
+              </p>
+              <ArrowLeftRight className="w-4 h-4 text-muted-foreground" />
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
