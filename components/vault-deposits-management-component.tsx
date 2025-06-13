@@ -23,8 +23,6 @@ import {
   L2SLPX_CONTRACT_ADDRESS,
   YIELD_DELEGATION_VAULT_CONTRACT_ADDRESS,
 } from "@/lib/constants";
-import { useForm } from "@tanstack/react-form";
-import type { AnyFieldApi } from "@tanstack/react-form";
 import { Button } from "@/components/ui/button";
 import { parseEther, formatEther, Address, maxUint256, erc20Abi } from "viem";
 import { useMediaQuery } from "@/hooks/use-media-query";
@@ -39,6 +37,7 @@ import {
   ArrowLeftRight,
   BanknoteArrowDown,
   OctagonAlert,
+  EqualApproximately
 } from "lucide-react";
 import { l2SlpxAbi, yieldDelegationVaultAbi } from "@/lib/abis";
 import { TransactionStatus } from "@/components/transaction-status";
@@ -51,7 +50,7 @@ import {
   DialogTrigger,
   DialogFooter,
   DialogClose,
-} from "@/components/ui/dialog"
+} from "@/components/ui/dialog";
 import {
   Drawer,
   DrawerClose,
@@ -61,7 +60,7 @@ import {
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
-} from "@/components/ui/drawer"
+} from "@/components/ui/drawer";
 
 const tokens: Token[] = TOKEN_LIST.filter(
   (token) => token.symbol === "vDOT" || token.symbol === "vETH"
@@ -255,9 +254,7 @@ export default function VaultDepositsManagementComponent() {
         {isDataBatchError && (
           <div className="flex flex-row gap-2 items-center bg-red-500 p-2 text-secondary">
             <OctagonAlert className="w-4 h-4" />
-            <p className="text-lg font-bold">
-              {dataBatchError?.message}
-            </p>
+            <p className="text-lg font-bold">{dataBatchError?.message}</p>
           </div>
         )}
         <div className="grid grid-cols-2 gap-4">
@@ -306,7 +303,16 @@ export default function VaultDepositsManagementComponent() {
             <>
               {dataBatch?.[0]?.result?.depositIds.map((depositId) => {
                 return (
-                  <VaultDepositInfo key={depositId} depositId={depositId} />
+                  <VaultDepositInfo
+                    key={depositId}
+                    depositId={depositId}
+                    currentTokenConversionRate={
+                      {
+                        vethTokenConversionRate: dataBatch?.[1]?.result?.tokenConversionRate ?? BigInt(0),
+                        dotTokenConversionRate: dataBatch?.[2]?.result?.tokenConversionRate ?? BigInt(0),
+                      }
+                    }
+                  />
                 );
               })}
             </>
@@ -317,7 +323,16 @@ export default function VaultDepositsManagementComponent() {
   );
 }
 
-function VaultDepositInfo({ depositId }: { depositId: bigint }) {
+function VaultDepositInfo({
+  depositId,
+  currentTokenConversionRate,
+}: {
+  depositId: bigint;
+  currentTokenConversionRate: {
+    vethTokenConversionRate: bigint;
+    dotTokenConversionRate: bigint;
+  };
+}) {
   const isDesktop = useMediaQuery("(min-width: 768px)");
 
   const {
@@ -340,6 +355,12 @@ function VaultDepositInfo({ depositId }: { depositId: bigint }) {
     if (tokenAddress === "0x6e0f9f2d25CC586965cBcF7017Ff89836ddeF9CC") {
       return "vETH";
     }
+    if (tokenAddress === "0x0000000000000000000000000000000000000000") {
+      return "ETH";
+    }
+    if (tokenAddress === "0x4B16E254E7848e0826eBDd3049474fD9E70A244c") {
+      return "DOT";
+    }
     return "n/a";
   }
 
@@ -358,60 +379,154 @@ function VaultDepositInfo({ depositId }: { depositId: bigint }) {
           >
             <RefreshCcw />
           </Button>
-          {
-            isDesktop ? (
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button className="hover:cursor-pointer">
-                    <BanknoteArrowDown />
-                    Withdraw
-                  </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Are you absolutely sure?</DialogTitle>
-                    <DialogDescription>This action cannot be undone.</DialogDescription>
-                  </DialogHeader>
-                  <DialogFooter>
-                    <Button>Submit</Button>
-                    <DialogClose asChild>
-                      <Button variant="outline">Cancel</Button>
-                    </DialogClose>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
-            ) : (
-              <Drawer>
-                <DrawerTrigger asChild>
-                  <Button className="hover:cursor-pointer">
-                    <BanknoteArrowDown />
-                    Withdraw
-                  </Button>
-                </DrawerTrigger>
-                <DrawerContent>
-                  <DrawerHeader>
-                    <DrawerTitle>Are you absolutely sure?</DrawerTitle>
-                    <DrawerDescription>This action cannot be undone.</DrawerDescription>
-                  </DrawerHeader>
-                  <DrawerFooter>
-                    <Button>Submit</Button>
-                    <DrawerClose>
-                      <Button variant="outline">Cancel</Button>
-                    </DrawerClose>
-                  </DrawerFooter>
-                </DrawerContent>
-              </Drawer>
-            )
-          }
+          {isDesktop ? (
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button className="hover:cursor-pointer">
+                  <BanknoteArrowDown />
+                  Withdraw
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Withdraw your deposit</DialogTitle>
+                  <DialogDescription>
+                    Please review the details below.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="flex flex-col gap-2">
+                  <div className="flex flex-row items-center gap-2">
+                    <p className="text-lg font-bold">Withdrawing</p>
+                    <p className="text-lg font-bold">
+                      {
+                        vaultDepositRecord?.amountDeposited && vaultDepositRecord?.depositConversionRate ?
+                        roundLongDecimals(formatEther(
+                          (vaultDepositRecord.amountDeposited * BigInt(10 ** 18) / (
+                            vaultDepositRecord.tokenAddress === "0x6e0f9f2d25CC586965cBcF7017Ff89836ddeF9CC" ?
+                            currentTokenConversionRate.vethTokenConversionRate :
+                            currentTokenConversionRate.dotTokenConversionRate
+                          ))
+                        ), 8) : "0"
+                      }
+                    </p>
+                    <p className="text-lg font-bold">
+                      {
+                        formatTokenAddress(
+                          vaultDepositRecord?.tokenAddress ??
+                            "0x0000000000000000000000000000000000000000"
+                        )
+                      }
+                    </p>
+                  </div>
+                  <div className="flex flex-row items-center gap-2">
+                    <p className="text-md text-muted-foreground">Equivalent to</p>
+                    <EqualApproximately className="w-4 h-4 text-muted-foreground" />
+                    <p className="text-md text-muted-foreground">
+                      {
+                        vaultDepositRecord?.amountDeposited && vaultDepositRecord?.depositConversionRate ?
+                        roundLongDecimals(formatEther(
+                          (vaultDepositRecord.amountDeposited * BigInt(10 ** 18) / vaultDepositRecord.depositConversionRate)
+                        ), 8) : "0"
+                      }
+                    </p>
+                    <p className="text-md text-muted-foreground">
+                      {
+                        formatTokenAddress(
+                          vaultDepositRecord?.tokenAddress ??
+                            "0x0000000000000000000000000000000000000000"
+                        ) === "vETH" ? "ETH" : "DOT"
+                      }
+                    </p>
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button className="hover:cursor-pointer">Withdraw</Button>
+                  <DialogClose asChild>
+                    <Button variant="outline" className="hover:cursor-pointer">Cancel</Button>
+                  </DialogClose>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          ) : (
+            <Drawer>
+              <DrawerTrigger asChild>
+                <Button className="hover:cursor-pointer">
+                  <BanknoteArrowDown />
+                  Withdraw
+                </Button>
+              </DrawerTrigger>
+              <DrawerContent>
+                <DrawerHeader>
+                  <DrawerTitle>Withdraw your deposit</DrawerTitle>
+                  <DrawerDescription>
+                    Please review the details below.
+                  </DrawerDescription>
+                </DrawerHeader>
+                <div className="flex flex-col gap-2 px-4">
+                  <div className="flex flex-row items-center gap-2">
+                    <p className="text-lg font-bold">Withdrawing</p>
+                    <p className="text-lg font-bold">
+                      {
+                        vaultDepositRecord?.amountDeposited && vaultDepositRecord?.depositConversionRate ?
+                        roundLongDecimals(formatEther(
+                          (vaultDepositRecord.amountDeposited * BigInt(10 ** 18) / (
+                            vaultDepositRecord.tokenAddress === "0x6e0f9f2d25CC586965cBcF7017Ff89836ddeF9CC" ?
+                            currentTokenConversionRate.vethTokenConversionRate :
+                            currentTokenConversionRate.dotTokenConversionRate
+                          ))
+                        ), 8) : "0"
+                      }
+                    </p>
+                    <p className="text-lg font-bold">
+                      {
+                        formatTokenAddress(
+                          vaultDepositRecord?.tokenAddress ??
+                            "0x0000000000000000000000000000000000000000"
+                        )
+                      }
+                    </p>
+                  </div>
+                  <div className="flex flex-row items-center gap-2">
+                    <p className="text-md text-muted-foreground">Equivalent to</p>
+                    <EqualApproximately className="w-4 h-4 text-muted-foreground" />
+                    <p className="text-md text-muted-foreground">
+                      {
+                        vaultDepositRecord?.amountDeposited && vaultDepositRecord?.depositConversionRate ?
+                        roundLongDecimals(formatEther(
+                          (vaultDepositRecord.amountDeposited * BigInt(10 ** 18) / vaultDepositRecord.depositConversionRate)
+                        ), 8) : "0"
+                      }
+                    </p>
+                    <p className="text-md text-muted-foreground">
+                      {
+                        formatTokenAddress(
+                          vaultDepositRecord?.tokenAddress ??
+                            "0x0000000000000000000000000000000000000000"
+                        ) === "vETH" ? "ETH" : "DOT"
+                      }
+                    </p>
+                  </div>
+                </div>
+                <DrawerFooter>
+                  <Button className="hover:cursor-pointer">Withdraw</Button>
+                  <DrawerClose asChild>
+                    <Button variant="outline" className="hover:cursor-pointer">Cancel</Button>
+                  </DrawerClose>
+                </DrawerFooter>
+              </DrawerContent>
+            </Drawer>
+          )}
         </div>
       </div>
       <div className="flex flex-col gap-2 items-end">
         {isVaultDepositRecordError && (
           <div className="flex flex-row gap-2 items-center bg-red-500 p-2 text-secondary">
             <OctagonAlert className="w-4 h-4" />
-            <p className="text-lg font-bold">{vaultDepositRecordError?.message}</p>
+            <p className="text-lg font-bold">
+              {vaultDepositRecordError?.message}
+            </p>
           </div>
-        )} 
+        )}
         {isVaultDepositRecordLoading ? (
           <>
             <Skeleton className="w-[100px] h-[30px] rounded-md" />
@@ -437,6 +552,23 @@ function VaultDepositInfo({ depositId }: { depositId: bigint }) {
                 )}
               </p>
               <ArrowLeftRight className="w-4 h-4 text-muted-foreground" />
+              <p className="text-lg text-muted-foreground">
+                {vaultDepositRecord?.amountDeposited && vaultDepositRecord?.depositConversionRate && (
+                  roundLongDecimals(formatEther(
+                      (vaultDepositRecord.amountDeposited * BigInt(10 ** 18) / vaultDepositRecord.depositConversionRate)
+                    ),
+                    8
+                  )
+                )}
+              </p>
+              <p className="text-lg text-muted-foreground">
+                {
+                  formatTokenAddress(
+                    vaultDepositRecord?.tokenAddress ??
+                      "0x0000000000000000000000000000000000000000"
+                  ) === "vETH" ? "ETH" : "DOT"
+                }
+              </p>
             </div>
           </>
         )}
