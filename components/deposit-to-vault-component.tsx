@@ -30,7 +30,7 @@ import { Button } from "@/components/ui/button";
 import { DepositToVaultProps } from "@/types/shared";
 import { parseEther, formatEther, Address, maxUint256, erc20Abi } from "viem";
 import { useMediaQuery } from "@/hooks/use-media-query";
-import { roundLongDecimals, formatNumberStringInput, formatNumberStringWithThousandSeparators } from "@/lib/utils";
+import { roundLongDecimals, formatNumberStringWithThousandSeparators } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
 import { yieldDelegationVaultAbi } from "@/lib/abis";
 import { TransactionStatus } from "@/components/transaction-status";
@@ -53,14 +53,24 @@ export default function DepositToVaultComponent({
     chainId: chainId,
   });
 
-  const { data: tokenAllowance, refetch: refetchTokenAllowance } =
-    useReadContract({
-      address: TOKEN_LIST.filter((token) => token.symbol === "DOT")[0]
-        .address as Address,
-      abi: erc20Abi,
-      functionName: "allowance",
-      args: [address as Address, L2SLPX_CONTRACT_ADDRESS],
-    });
+  const { data: vdotAllowance, refetch: refetchVdotAllowance } =
+  useReadContract({
+    address: TOKEN_LIST.filter((token) => token.symbol === "vDOT")[0]
+      .address as Address,
+    abi: erc20Abi,
+    functionName: "allowance",
+    args: [address as Address, L2SLPX_CONTRACT_ADDRESS],
+  });
+
+  const { data: vethAllowance, refetch: refetchVethAllowance } =
+  useReadContract({
+    address: TOKEN_LIST.filter((token) => token.symbol === "vETH")[0]
+      .address as Address,
+    abi: erc20Abi,
+    functionName: "allowance",
+    args: [address as Address, L2SLPX_CONTRACT_ADDRESS],
+  });
+
 
   const { data: hash, error, isPending, writeContract } = useWriteContract();
 
@@ -103,7 +113,7 @@ export default function DepositToVaultComponent({
         }
 
         if (availableCapabilities?.atomic?.status !== "supported") {
-          if (tokenAllowance === BigInt(0)) {
+          if (vethAllowance === BigInt(0)) {
             writeContract({
               address: TOKEN_LIST.filter((token) => token.symbol === "vETH")[0]
                 .address as Address,
@@ -113,7 +123,7 @@ export default function DepositToVaultComponent({
             });
           }
 
-          if (tokenAllowance && tokenAllowance >= parseEther(value.amount)) {
+          if (vethAllowance && vethAllowance >= parseEther(value.amount)) {
             writeContract({
               address: YIELD_DELEGATION_VAULT_CONTRACT_ADDRESS,
               abi: yieldDelegationVaultAbi,
@@ -154,7 +164,7 @@ export default function DepositToVaultComponent({
         }
 
         if (availableCapabilities?.atomic?.status !== "supported") {
-          if (tokenAllowance === BigInt(0)) {
+          if (vdotAllowance === BigInt(0)) {
             writeContract({
               address: TOKEN_LIST.filter((token) => token.symbol === "vDOT")[0]
                 .address as Address,
@@ -164,7 +174,7 @@ export default function DepositToVaultComponent({
             });
           }
 
-          if (tokenAllowance && tokenAllowance >= parseEther(value.amount)) {
+          if (vdotAllowance && vdotAllowance >= parseEther(value.amount)) {
             writeContract({
               address: YIELD_DELEGATION_VAULT_CONTRACT_ADDRESS,
               abi: yieldDelegationVaultAbi,
@@ -212,9 +222,10 @@ export default function DepositToVaultComponent({
 
   useEffect(() => {
     if (isConfirmed) {
-      refetchTokenAllowance();
+      refetchVdotAllowance();
+      refetchVethAllowance();
     }
-  }, [isConfirmed, refetchTokenAllowance]);
+  }, [isConfirmed, refetchVdotAllowance, refetchVethAllowance]);
 
   return (
     <div className="flex flex-col gap-4 w-full p-4">
@@ -290,11 +301,8 @@ export default function DepositToVaultComponent({
                         <input
                           id={field.name}
                           name={field.name}
-                          value={field.state.value ? formatNumberStringInput(field.state.value) : ""}
-                          onChange={(e) => {
-                            const rawValue = e.target.value.replace(/,/g, '');
-                            field.handleChange(rawValue);
-                          }}
+                          value={field.state.value || ""}
+                          onChange={(e) => field.handleChange(e.target.value)}
                           className="bg-transparent text-4xl outline-none w-full [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                           type="number"
                           placeholder="0"
@@ -304,11 +312,8 @@ export default function DepositToVaultComponent({
                         <input
                           id={field.name}
                           name={field.name}
-                          value={field.state.value ? formatNumberStringInput(field.state.value) : ""}
-                          onChange={(e) => {
-                            const rawValue = e.target.value.replace(/,/g, '');
-                            field.handleChange(rawValue);
-                          }}
+                          value={field.state.value || ""}
+                          onChange={(e) => field.handleChange(e.target.value)}
                           className="bg-transparent text-4xl outline-none w-full [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                           type="text"
                           inputMode="decimal"
@@ -379,8 +384,7 @@ export default function DepositToVaultComponent({
                     Sending...
                   </>
                 ) : availableCapabilities?.atomic?.status !== "supported" &&
-                  tokenAllowance === BigInt(0) &&
-                  selectedToken?.symbol === "vDOT" ? (
+                  (vdotAllowance === BigInt(0) || vethAllowance === BigInt(0)) ? (
                   <>Approve</>
                 ) : (
                   <>Deposit</>
