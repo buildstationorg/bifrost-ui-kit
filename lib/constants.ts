@@ -34,3 +34,27 @@ export const TOKEN_LIST: Token[] = [
     image: "/vdot.svg",
   },
 ];
+
+export const TOKEN_LIST2: Token[] = [
+  {
+    name: "Westend",
+    symbol: "WND",
+    address: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE", //https://eips.ethereum.org/EIPS/eip-7528
+    decimals: 18,
+    image: "/dot.svg",
+  },
+  {
+    name: "Polkadot",
+    symbol: "DOT",
+    address: "0xCa8d2C658EB4833647202FE5a431cD52aF5812E2",
+    decimals: 18,
+    image: "/dot.svg",
+  },
+  {
+    name: "Voucher DOT",
+    symbol: "vDOT",
+    address: "0x4565B7a881396F38dfF8e28830a0b614e3baC422",
+    decimals: 18,
+    image: "/vdot.svg",
+  },
+];

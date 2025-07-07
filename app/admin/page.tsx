@@ -1,9 +1,10 @@
 "use client";
 
-import BalancesComponent from "@/components/balances-component";
+import AdminBalancesComponent from "@/components/admin-balances-component";
+import AdminMintComponent from "@/components/admin-mint-component";
 import { useBalance, useAccount, useReadContracts } from "wagmi";
 import { erc20Abi, Address } from "viem";
-import { TOKEN_LIST } from "@/lib/constants";
+import { TOKEN_LIST2 } from "@/lib/constants";
 
 export default function AdminPage() {
   const { address } = useAccount();
@@ -25,15 +26,7 @@ export default function AdminPage() {
       // DOT
       {
         abi: erc20Abi,
-        address: TOKEN_LIST.filter((token) => token.symbol === "DOT")[0]
-          .address as Address,
-        functionName: "balanceOf",
-        args: [address as Address],
-      },
-      // vETH
-      {
-        abi: erc20Abi,
-        address: TOKEN_LIST.filter((token) => token.symbol === "vETH")[0]
+        address: TOKEN_LIST2.filter((token) => token.symbol === "DOT")[0]
           .address as Address,
         functionName: "balanceOf",
         args: [address as Address],
@@ -41,7 +34,7 @@ export default function AdminPage() {
       // vDOT
       {
         abi: erc20Abi,
-        address: TOKEN_LIST.filter((token) => token.symbol === "vDOT")[0]
+        address: TOKEN_LIST2.filter((token) => token.symbol === "vDOT")[0]
           .address as Address,
         functionName: "balanceOf",
         args: [address as Address],
@@ -51,7 +44,7 @@ export default function AdminPage() {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <BalancesComponent
+      <AdminBalancesComponent
         nativeBalance={nativeBalance?.value ?? BigInt(0)}
         isNativeBalanceLoading={isLoadingNativeBalance}
         refetchNativeBalance={refetchNativeBalance}
@@ -61,9 +54,7 @@ export default function AdminPage() {
         isTokenBalancesLoading={isTokenBalancesLoading}
         refetchTokenBalances={refetchTokenBalances}
       />
-      <div>
-        <h1>Admin</h1>
-      </div>
+      <AdminMintComponent />
       <div>
         <h1>Admin</h1>
       </div>
