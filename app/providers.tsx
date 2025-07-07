@@ -23,7 +23,7 @@ const config = getDefaultConfig({
       wallets: [trustWallet, ledgerWallet],
     },
   ],
-  chains: [sepolia, baseSepolia],
+  chains: [sepolia, baseSepolia, westendAssetHub],
   transports: {
     [sepolia.id]: http(process.env.NEXT_PUBLIC_RPC_URL_SEPOLIA!),
     [baseSepolia.id]: http(process.env.NEXT_PUBLIC_RPC_URL_BASE_SEPOLIA!),
