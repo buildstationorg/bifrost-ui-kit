@@ -32,6 +32,7 @@ const TOKEN_LIST: Token[] = [
     name: "Polkadot",
     symbol: "DOT",
     address: "0xCa8d2C658EB4833647202FE5a431cD52aF5812E2",
+    network: "westend-assethub",
     decimals: 18,
     image: "/dot.svg",
   }
