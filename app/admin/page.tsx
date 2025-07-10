@@ -2,6 +2,7 @@
 
 import AdminBalancesComponent from "@/components/admin-balances-component";
 import AdminMintComponent from "@/components/admin-mint-component";
+import AdminGetTokenConversion from "@/components/admin-get-token-conversion";
 import { useBalance, useAccount, useReadContracts } from "wagmi";
 import { erc20Abi, Address } from "viem";
 import { TOKEN_LIST2 } from "@/lib/constants";
@@ -55,9 +56,7 @@ export default function AdminPage() {
         refetchTokenBalances={refetchTokenBalances}
       />
       <AdminMintComponent />
-      <div>
-        <h1>Admin</h1>
-      </div>
+      <AdminGetTokenConversion />
     </div>
   );
 }
