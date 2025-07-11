@@ -20,11 +20,12 @@ import Image from "next/image";
 import { useForm } from "@tanstack/react-form";
 import type { AnyFieldApi } from "@tanstack/react-form";
 import { Button } from "@/components/ui/button";
-import { parseEther, Address, formatEther } from "viem";
+import { parseEther, Address } from "viem";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { Loader2 } from "lucide-react";
 import { TransactionStatus } from "@/components/transaction-status";
 import { L2SLPX_CONTRACT_ADDRESSES } from "@/lib/constants";
+import { l2SlpxAbi } from "@/lib/abis";
 
 
 const tokens: Token[] = [
@@ -88,14 +89,41 @@ export default function AdminSetTokenConversion() {
     }
   }
 
+  function getCounterpartyTokenAddress(tokenAddress: Address) {
+    switch (tokenAddress) {
+      case "0xCa8d2C658EB4833647202FE5a431cD52aF5812E2":
+        return "0x4565B7a881396F38dfF8e28830a0b614e3baC422";
+      case "0x4565B7a881396F38dfF8e28830a0b614e3baC422":
+        return "0xCa8d2C658EB4833647202FE5a431cD52aF5812E2";
+      default:
+        return null;
+    }
+  }
+
   const form = useForm({
     defaultValues: {
       selectedToken: "",
       operation: "",
+      minOrderSize: "",
+      orderFee: "",
       tokenConversionRate: "",
     },
     onSubmit: async ({ value }) => {
       console.log(value);
+
+      writeContract({
+        address: l2SlpxContractAddress as Address,
+        abi: l2SlpxAbi,
+        functionName: "setTokenConversionInfo",
+        args: [
+          value.selectedToken as Address,
+          Number(value.operation),
+          parseEther(value.minOrderSize),
+          parseEther(value.tokenConversionRate),
+          parseEther(value.orderFee),
+          getCounterpartyTokenAddress(value.selectedToken as Address) as Address,
+        ],
+      });
     },
   });
 
@@ -164,6 +192,58 @@ export default function AdminSetTokenConversion() {
             <div>
               {/* A type-safe field component*/}
               <form.Field
+                name="minOrderSize"
+                validators={{
+                  onChange: ({ value }) =>
+                    !value
+                      ? "Please enter a min order size"
+                      : parseEther(value) < 0
+                      ? "Min order size must be greater than 0"
+                      : undefined,
+                }}
+              >
+                {(field) => (
+                  <div className="flex flex-col gap-2">
+                    <div className="flex flex-row gap-2 items-center justify-between">
+                      <p className="text-muted-foreground">Min order size</p>
+                    </div>
+                    <div className="flex flex-row gap-2">
+                      {isDesktop ? (
+                        <input
+                          id={field.name}
+                          name={field.name}
+                          value={field.state.value || ""}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                          className="bg-transparent text-4xl outline-none w-full [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                          type="number"
+                          placeholder="0"
+                          required
+                        />
+                      ) : (
+                        <input
+                          id={field.name}
+                          name={field.name}
+                          value={field.state.value || ""}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                          className="bg-transparent text-4xl outline-none w-full [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                          type="number"
+                          inputMode="decimal"
+                          pattern="[0-9]*"
+                          placeholder="0"
+                          required
+                        />
+                      )}
+                    </div>
+                    <FieldInfo field={field} />
+                  </div>
+                )}
+              </form.Field>
+            </div>
+          </div>
+          <div className="flex flex-col gap-2 rounded-lg border p-4">
+            <div>
+              {/* A type-safe field component*/}
+              <form.Field
                 name="tokenConversionRate"
                 validators={{
                   onChange: ({ value }) =>
@@ -178,6 +258,58 @@ export default function AdminSetTokenConversion() {
                   <div className="flex flex-col gap-2">
                     <div className="flex flex-row gap-2 items-center justify-between">
                       <p className="text-muted-foreground">Conversion rate</p>
+                    </div>
+                    <div className="flex flex-row gap-2">
+                      {isDesktop ? (
+                        <input
+                          id={field.name}
+                          name={field.name}
+                          value={field.state.value || ""}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                          className="bg-transparent text-4xl outline-none w-full [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                          type="number"
+                          placeholder="0"
+                          required
+                        />
+                      ) : (
+                        <input
+                          id={field.name}
+                          name={field.name}
+                          value={field.state.value || ""}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                          className="bg-transparent text-4xl outline-none w-full [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                          type="number"
+                          inputMode="decimal"
+                          pattern="[0-9]*"
+                          placeholder="0"
+                          required
+                        />
+                      )}
+                    </div>
+                    <FieldInfo field={field} />
+                  </div>
+                )}
+              </form.Field>
+            </div>
+          </div>
+          <div className="flex flex-col gap-2 rounded-lg border p-4">
+            <div>
+              {/* A type-safe field component*/}
+              <form.Field
+                name="orderFee"
+                validators={{
+                  onChange: ({ value }) =>
+                    !value
+                      ? "Please enter a order fee"
+                      : parseEther(value) < 0
+                      ? "Order fee must be greater than 0"
+                      : undefined,
+                }}
+              >
+                {(field) => (
+                  <div className="flex flex-col gap-2">
+                    <div className="flex flex-row gap-2 items-center justify-between">
+                      <p className="text-muted-foreground">Order fee</p>
                     </div>
                     <div className="flex flex-row gap-2">
                       {isDesktop ? (
@@ -276,7 +408,7 @@ function FieldInfo({ field }: { field: AnyFieldApi }) {
 
 function SelectToken({ token }: { token: Token }) {
   return (
-    <SelectItem value={token.symbol}>
+    <SelectItem value={token.address}>
       <div className="flex flex-row gap-2 items-center justify-center">
         <Image src={token.image} alt={token.symbol} width={24} height={24} />
         <p className="text-lg">{token.name}</p>
