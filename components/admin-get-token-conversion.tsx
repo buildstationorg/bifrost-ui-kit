@@ -1,10 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import {
-  useChainId,
-  useReadContract,
-} from "wagmi";
+import { useChainId, useReadContract } from "wagmi";
 import { Address } from "viem";
 import {
   Select,
@@ -152,10 +149,16 @@ export default function AdminGetTokenConversion() {
         )}
         <div className="flex flex-row gap-2 items-center">
           <ParkingMeter className="w-6 h-6" />
-          {isLoading ? (
-            <Skeleton className="w-8 h-6" />
+          {selectedToken?.symbol ? (
+            <>
+              {isLoading ? (
+                <Skeleton className="w-8 h-6" />
+              ) : (
+                <p className="text-lg">{conversionRate?.orderFee}</p>
+              )}
+            </>
           ) : (
-            <p className="text-lg">{conversionRate?.orderFee}</p>
+            <p className="text-muted-foreground">Select a token</p>
           )}
         </div>
       </div>
