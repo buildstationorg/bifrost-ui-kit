@@ -24,7 +24,6 @@ import {
 import type { Token } from "@/types/token";
 import Image from "next/image";
 import { TOKEN_LIST, L2SLPX_CONTRACT_ADDRESS } from "@/lib/constants";
-import { L2SLPX_CONTRACT_ADDRESSES } from "@/lib/constants";
 import { useForm } from "@tanstack/react-form";
 import type { AnyFieldApi } from "@tanstack/react-form";
 import { Button } from "@/components/ui/button";
