@@ -2,12 +2,7 @@
 
 import { useState } from "react";
 import {
-  type BaseError,
-  useWaitForTransactionReceipt,
-  useWriteContract,
-  useAccount,
   useChainId,
-  useConfig,
   useReadContract,
 } from "wagmi";
 import { Address } from "viem";
@@ -18,14 +13,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Token } from "@/types/token";
 import Image from "next/image";
 import { l2SlpxAbi } from "@/lib/abis";
 import { L2SLPX_CONTRACT_ADDRESSES } from "@/lib/constants";
-import { ArrowRight, CircleSlash } from 'lucide-react';
+import { ArrowRight, CircleSlash, ParkingMeter } from "lucide-react";
 
 export default function AdminGetTokenConversion() {
-  const { address } = useAccount();
   const chainId = useChainId();
 
   // based on chainId which is a number, use switch case to get the correct contract address from the L2SLPX_CONTRACT_ADDRESSES object
@@ -83,7 +78,7 @@ export default function AdminGetTokenConversion() {
     },
   ];
 
-  const { data: conversionRate } = useReadContract({
+  const { data: conversionRate, isLoading } = useReadContract({
     address: l2SlpxContractAddress
       ? (l2SlpxContractAddress as Address)
       : undefined,
@@ -119,38 +114,50 @@ export default function AdminGetTokenConversion() {
           </SelectContent>
         </Select>
       </div>
-      <div className="flex flex-col gap-2">
-        {
-          selectedToken?.symbol === "DOT" ? (
-            <div className="flex flex-row gap-2 items-center">
-              <CircleSlash className="w-6 h-6" />
-              <div className="flex flex-row gap-2">
-                <p className="text-lg">1</p>
-                <Image src="/dot.svg" alt="DOT" width={24} height={24} />
-                <p>DOT</p>
-              </div>
-              <ArrowRight />
-              <div className="flex flex-row gap-2">
-                <Image src="/vdot.svg" alt="vDOT" width={24} height={24} />
-                <p>vDOT</p>
-              </div>
-            </div>
-          ) : selectedToken?.symbol === "vDOT" ? (
+      <div className="flex flex-col gap-2 rounded-lg border p-4">
+        {selectedToken?.symbol === "DOT" ? (
+          <div className="flex flex-row gap-2 items-center">
+            <CircleSlash className="w-6 h-6" />
             <div className="flex flex-row gap-2">
-              <div className="flex flex-row gap-2">
-                <Image src="/vdot.svg" alt="vDOT" width={24} height={24} />
-                <p>vDOT</p>
-              </div>
-              <ArrowRight />
-              <div className="flex flex-row gap-2">
-                <Image src="/dot.svg" alt="DOT" width={24} height={24} />
-                <p>DOT</p>
-              </div>
+              <p className="text-lg">1</p>
+              <Image src="/dot.svg" alt="DOT" width={24} height={24} />
+              <p>DOT</p>
             </div>
+            <ArrowRight />
+            <div className="flex flex-row gap-2 items-center">
+              {isLoading ? (
+                <Skeleton className="w-8 h-6" />
+              ) : (
+                <p className="text-lg">{conversionRate?.tokenConversionRate}</p>
+              )}
+              <Image src="/vdot.svg" alt="vDOT" width={24} height={24} />
+              <p>vDOT</p>
+            </div>
+          </div>
+        ) : selectedToken?.symbol === "vDOT" ? (
+          <div className="flex flex-row gap-2">
+            <div className="flex flex-row gap-2">
+              <p className="text-lg">1</p>
+              <Image src="/vdot.svg" alt="vDOT" width={24} height={24} />
+              <p>vDOT</p>
+            </div>
+            <ArrowRight />
+            <div className="flex flex-row gap-2">
+              <Image src="/dot.svg" alt="DOT" width={24} height={24} />
+              <p>DOT</p>
+            </div>
+          </div>
+        ) : (
+          <p className="text-muted-foreground">Select a token</p>
+        )}
+        <div className="flex flex-row gap-2 items-center">
+          <ParkingMeter className="w-6 h-6" />
+          {isLoading ? (
+            <Skeleton className="w-8 h-6" />
           ) : (
-            <p className="text-muted-foreground">Select a token</p>
-          )
-        }
+            <p className="text-lg">{conversionRate?.orderFee}</p>
+          )}
+        </div>
       </div>
     </div>
   );
