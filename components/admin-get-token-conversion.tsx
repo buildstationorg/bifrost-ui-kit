@@ -126,7 +126,7 @@ export default function AdminGetTokenConversion() {
               {isLoading ? (
                 <Skeleton className="w-8 h-6" />
               ) : (
-                <p className="text-lg">{formatEther(conversionRate?.tokenConversionRate)}</p>
+                <p className="text-lg">{formatEther(conversionRate?.tokenConversionRate ?? BigInt(0))}</p>
               )}
               <Image src="/vdot.svg" alt="vDOT" width={24} height={24} />
               <p>vDOT</p>
@@ -155,7 +155,7 @@ export default function AdminGetTokenConversion() {
               {isLoading ? (
                 <Skeleton className="w-8 h-6" />
               ) : (
-                <p className="text-lg">{formatEther(conversionRate?.orderFee)}</p>
+                <p className="text-lg">{formatEther(conversionRate?.orderFee ?? BigInt(0))}</p>
               )}
             </>
           ) : (
