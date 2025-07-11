@@ -16,6 +16,7 @@ import Image from "next/image";
 import { l2SlpxAbi } from "@/lib/abis";
 import { L2SLPX_CONTRACT_ADDRESSES } from "@/lib/constants";
 import { ArrowRight, CircleSlash, ParkingMeter } from "lucide-react";
+import { formatEther } from "viem";
 
 export default function AdminGetTokenConversion() {
   const chainId = useChainId();
@@ -125,7 +126,7 @@ export default function AdminGetTokenConversion() {
               {isLoading ? (
                 <Skeleton className="w-8 h-6" />
               ) : (
-                <p className="text-lg">{conversionRate?.tokenConversionRate}</p>
+                <p className="text-lg">{formatEther(conversionRate?.tokenConversionRate)}</p>
               )}
               <Image src="/vdot.svg" alt="vDOT" width={24} height={24} />
               <p>vDOT</p>
@@ -154,7 +155,7 @@ export default function AdminGetTokenConversion() {
               {isLoading ? (
                 <Skeleton className="w-8 h-6" />
               ) : (
-                <p className="text-lg">{conversionRate?.orderFee}</p>
+                <p className="text-lg">{formatEther(conversionRate?.orderFee)}</p>
               )}
             </>
           ) : (
