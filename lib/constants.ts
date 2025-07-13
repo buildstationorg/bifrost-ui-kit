@@ -26,6 +26,10 @@ export const L2SLPX_CONTRACT_ADDRESSES = [
   {
     network: "westend-assethub",
     address: "0x80aC520A989388D6757f9049d3875256696D5076",
+  },
+  {
+    network: "paseo-passethub",
+    address: "0xeB85DBa111Af2963746f1BdfFB976BE6e8f23E10",
   }
 ]
 

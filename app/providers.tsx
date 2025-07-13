@@ -7,7 +7,7 @@ import {
   getDefaultConfig,
 } from "@rainbow-me/rainbowkit";
 import { trustWallet, ledgerWallet } from "@rainbow-me/rainbowkit/wallets";
-import { sepolia, baseSepolia, westendAssetHub } from "wagmi/chains";
+import { sepolia, baseSepolia, westendAssetHub, paseoPassethub } from "wagmi/chains";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { WagmiProvider, http } from "wagmi";
 
@@ -23,11 +23,12 @@ const config = getDefaultConfig({
       wallets: [trustWallet, ledgerWallet],
     },
   ],
-  chains: [sepolia, baseSepolia, westendAssetHub],
+  chains: [sepolia, baseSepolia, westendAssetHub, paseoPassethub],
   transports: {
     [sepolia.id]: http(process.env.NEXT_PUBLIC_RPC_URL_SEPOLIA!),
     [baseSepolia.id]: http(process.env.NEXT_PUBLIC_RPC_URL_BASE_SEPOLIA!),
     [westendAssetHub.id]: http(process.env.NEXT_PUBLIC_RPC_URL_WESTEND_ASSETHUB!),
+    [paseoPassethub.id]: http(process.env.NEXT_PUBLIC_RPC_URL_PASEO_PASSETHUB!),
   },
   ssr: true, // Because it is Nextjs's App router, you need to declare ssr as true
 });
