@@ -6,7 +6,7 @@ import AdminGetTokenConversion from "@/components/admin-get-token-conversion";
 import AdminSetTokenConversion from "@/components/admin-set-token-conversion";
 import { useBalance, useAccount, useReadContracts } from "wagmi";
 import { erc20Abi, Address } from "viem";
-import { TOKEN_LIST2, TOKEN_LIST3 } from "@/lib/constants";
+import { TOKEN_LIST3 } from "@/lib/constants";
 
 export default function AdminPage() {
   const { address } = useAccount();

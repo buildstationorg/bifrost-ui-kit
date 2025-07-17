@@ -30,7 +30,7 @@ export const metadata: Metadata = {
     siteName: "Bifrost Build Stack",
     images: [
       {
-        url: "/buildui-tbn.png",
+        url: "/bifrost-full-mono.svg",
         width: 1200,
         height: 630,
         alt: "og-image",
@@ -41,10 +41,10 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "buildUI",
-    description: "a shadcn terminal theme",
+    title: "Bifrost Build Stack",
+    description: "A kit to build with Bifrost protocol",
     creator: "@zxstim",
-    images: ["/buildui-tbn.png"],
+    images: ["/bifrost-full-mono.svg"],
   },
 };
 
