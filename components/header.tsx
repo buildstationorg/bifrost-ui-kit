@@ -1,6 +1,7 @@
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import Link from "next/link";
 import Image from "next/image";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export default function Header() {
   return (
@@ -11,10 +12,13 @@ export default function Header() {
           alt="Bifrost Logo"
           width={150}
           height={150}
-          className="invert"
+          className="invert dark:invert-0"
         />
       </Link>
-      <ConnectButton />
+      <div className="flex flex-row gap-2">
+        <ThemeToggle />
+        <ConnectButton />
+      </div>
     </header>
   );
 }

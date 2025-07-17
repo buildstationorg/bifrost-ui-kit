@@ -1,24 +1,51 @@
 import Script from "next/script";
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+// import { Geist, Geist_Mono } from "next/font/google";
+import { JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import "@rainbow-me/rainbowkit/styles.css";
 import { Providers } from "@/app/providers";
 import Header from "@/components/header";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
+const jetBrainsMono = JetBrains_Mono({ subsets: ["latin"] });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+// const geistSans = Geist({
+//   variable: "--font-geist-sans",
+//   subsets: ["latin"],
+// });
+
+// const geistMono = Geist_Mono({
+//   variable: "--font-geist-mono",
+//   subsets: ["latin"],
+// });
 
 export const metadata: Metadata = {
-  title: "Bifrost UI Kit",
+  title: "Bifrost Build Stack",
   description: "A kit to build with Bifrost protocol",
+  metadataBase: new URL("https://bifrost.buildstack.org"),
+  openGraph: {
+    title: "Bifrost Build Stack",
+    description: "A kit to build with Bifrost protocol",
+    url: "https://bifrost.buildstack.org",
+    siteName: "Bifrost Build Stack",
+    images: [
+      {
+        url: "/buildui-tbn.png",
+        width: 1200,
+        height: 630,
+        alt: "og-image",
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "buildUI",
+    description: "a shadcn terminal theme",
+    creator: "@zxstim",
+    images: ["/buildui-tbn.png"],
+  },
 };
 
 export default function RootLayout({
@@ -34,7 +61,7 @@ export default function RootLayout({
         data-website-id="2c2b91aa-6bf6-490d-8606-931efe2a4283"
       />
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${jetBrainsMono.className} antialiased`}
       >
         <Providers>
           <main>
