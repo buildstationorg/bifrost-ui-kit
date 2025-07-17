@@ -192,6 +192,30 @@ export const TOKEN_LIST3: Token[] = [
     decimals: 18,
     image: "/vdot.svg",
   },
+  {
+    name: "Paseo",
+    symbol: "PAS",
+    address: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE", //https://eips.ethereum.org/EIPS/eip-7528
+    network: "paseo-passethub",
+    decimals: 18,
+    image: "/dot.svg",
+  },
+  {
+    name: "Polkadot",
+    symbol: "DOT",
+    address: "0xa46f44d17cc56e960d470F5Eae5FBcAb53b03e27",
+    network: "paseo-passethub",
+    decimals: 18,
+    image: "/dot.svg",
+  },
+  {
+    name: "Voucher DOT",
+    symbol: "vDOT",
+    address: "0xef6f920fb3F0319C3b5188066E603F4F95ECF52c",
+    network: "paseo-passethub",
+    decimals: 18,
+    image: "/vdot.svg",
+  },
 ]
 
 export const TOKEN_LIST2: Token[] = [

@@ -7,11 +7,31 @@ import {
   getDefaultConfig,
 } from "@rainbow-me/rainbowkit";
 import { trustWallet, ledgerWallet } from "@rainbow-me/rainbowkit/wallets";
-import { sepolia, baseSepolia, westendAssetHub, paseoPassethub } from "wagmi/chains";
+import { sepolia, baseSepolia, westendAssetHub } from "wagmi/chains";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { WagmiProvider, http } from "wagmi";
 
 const { wallets } = getDefaultWallets();
+
+const paseoPassethub = {
+  id: 420420422,
+  name: 'Paseo Passethub',
+  network: 'paseo-passethub',
+  nativeCurrency: {
+    name: 'PAS',
+    symbol: 'PAS',
+    decimals: 18
+  },
+  rpcUrls: {
+    default: {
+      http: ['https://testnet-passet-hub-eth-rpc.polkadot.io'],
+    },
+  },
+  blockExplorers: {
+    default: { name: 'Blockscout', url: 'https://blockscout-passet-hub.parity-testnet.parity.io' },
+  },
+} as const;
+
 
 const config = getDefaultConfig({
   appName: "BIFROST_EVM_MINT", // Name your app

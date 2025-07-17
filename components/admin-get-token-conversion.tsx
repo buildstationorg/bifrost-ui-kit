@@ -107,7 +107,7 @@ export default function AdminGetTokenConversion() {
           </SelectTrigger>
           <SelectContent>
             {tokens.map((token) => (
-              <SelectCheckTokenConversion key={token.symbol} token={token} />
+              <SelectCheckTokenConversion key={`${token.symbol}-${token.network}-${token.address}`} token={token} />
             ))}
           </SelectContent>
         </Select>

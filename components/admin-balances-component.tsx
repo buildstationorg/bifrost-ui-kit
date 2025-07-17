@@ -82,6 +82,28 @@ export default function AdminBalancesComponent({
         </div>
         <div className="flex flex-row justify-between gap-2">
           <div className="flex flex-row gap-2 items-center justify-center">
+            <Image src="/dot.svg" alt="Polkadot" width={48} height={48} />
+            <div className="flex flex-col">
+              <p className="text-xl font-semibold">Polkadot</p>
+              <p className="text-muted-foreground">Paseo Passet Hub</p>
+            </div>
+          </div>
+          <div className="flex flex-col text-right">
+            <div className="text-xl">
+              {isTokenBalancesLoading ? (
+                <Skeleton className="w-12 h-4" />
+              ) : (
+                roundLongDecimals(
+                  formatEther((tokenBalances?.[0] as bigint) || BigInt(0)),
+                  6
+                )
+              )}
+            </div>
+            <p className="text-muted-foreground">DOT</p>
+          </div>
+        </div>
+        <div className="flex flex-row justify-between gap-2">
+          <div className="flex flex-row gap-2 items-center justify-center">
             <Image
               src="/vdot.svg"
               alt="Voucher Polkadot"

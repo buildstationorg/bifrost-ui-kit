@@ -35,6 +35,14 @@ const TOKEN_LIST: Token[] = [
     network: "westend-assethub",
     decimals: 18,
     image: "/dot.svg",
+  },
+  {
+    name: "Polkadot",
+    symbol: "DOT",
+    address: "0xa46f44d17cc56e960d470F5Eae5FBcAb53b03e27",
+    network: "paseo-passethub",
+    decimals: 18,
+    image: "/dot.svg",
   }
 ];
 
@@ -57,7 +65,7 @@ export default function AdminMintComponent() {
       amount: "",
     },
     onSubmit: async ({ value }) => {
-      if (selectedToken?.symbol === "DOT") {
+      if (selectedToken?.network === "westend-assethub" || selectedToken?.network === "paseo-passethub") {
         writeContract({
           address: selectedToken?.address as Address,
           abi: vtokenAbi,
@@ -95,7 +103,7 @@ export default function AdminMintComponent() {
         <div className="flex flex-col gap-4">
           <Select
             onValueChange={(value) => {
-              const token = tokens.find((token) => token.symbol === value);
+              const token = tokens.find((token) => token.network === value);
               if (token) {
                 setSelectedToken(token);
               }
@@ -106,7 +114,7 @@ export default function AdminMintComponent() {
             </SelectTrigger>
             <SelectContent>
               {tokens.map((token) => (
-                <SelectMintToken key={token.symbol} token={token} />
+                <SelectMintToken key={`${token.symbol}-${token.network}-${token.address}`} token={token} />
               ))}
             </SelectContent>
           </Select>
@@ -235,7 +243,7 @@ function FieldInfo({ field }: { field: AnyFieldApi }) {
 
 function SelectMintToken({ token }: { token: Token }) {
   return (
-    <SelectItem value={token.symbol}>
+    <SelectItem value={token.network}>
       <div className="flex flex-row gap-2 items-center justify-center">
         <Image src={token.image} alt={token.symbol} width={24} height={24} />
         <p className="text-lg">{token.name}</p>

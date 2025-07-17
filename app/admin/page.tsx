@@ -6,7 +6,7 @@ import AdminGetTokenConversion from "@/components/admin-get-token-conversion";
 import AdminSetTokenConversion from "@/components/admin-set-token-conversion";
 import { useBalance, useAccount, useReadContracts } from "wagmi";
 import { erc20Abi, Address } from "viem";
-import { TOKEN_LIST2 } from "@/lib/constants";
+import { TOKEN_LIST2, TOKEN_LIST3 } from "@/lib/constants";
 
 export default function AdminPage() {
   const { address } = useAccount();
@@ -28,7 +28,7 @@ export default function AdminPage() {
       // DOT
       {
         abi: erc20Abi,
-        address: TOKEN_LIST2.filter((token) => token.symbol === "DOT")[0]
+        address: TOKEN_LIST3.filter((token) => token.symbol === "DOT")[0]
           .address as Address,
         functionName: "balanceOf",
         args: [address as Address],
@@ -36,7 +36,7 @@ export default function AdminPage() {
       // vDOT
       {
         abi: erc20Abi,
-        address: TOKEN_LIST2.filter((token) => token.symbol === "vDOT")[0]
+        address: TOKEN_LIST3.filter((token) => token.symbol === "vDOT")[0]
           .address as Address,
         functionName: "balanceOf",
         args: [address as Address],
