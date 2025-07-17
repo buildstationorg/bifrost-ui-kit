@@ -1,3 +1,4 @@
+import Script from "next/script";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -16,8 +17,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Bifrost Components",
-  description: "A collection of components for interacting with Bifrost protocol",
+  title: "Bifrost UI Kit",
+  description: "A kit to build with Bifrost protocol",
 };
 
 export default function RootLayout({
@@ -27,6 +28,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <Script
+        defer
+        src="https://analytics.zxstim.com/script.js"
+        data-website-id="2c2b91aa-6bf6-490d-8606-931efe2a4283"
+      />
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
