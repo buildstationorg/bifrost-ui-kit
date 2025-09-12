@@ -20,6 +20,24 @@ export default function Home() {
       </h2>
       <div className="flex flex-col gap-4">
         <Link
+          href="/balances"
+          className="flex flex-row gap-2 items-center underline underline-offset-4 w-fit"
+        >
+          Balances Component <ArrowRight />
+        </Link>
+        <Link
+          href="/mint"
+          className="flex flex-row gap-2 items-center underline underline-offset-4 w-fit"
+        >
+          Mint Component <ArrowRight />
+        </Link>
+        <Link
+          href="/redeem"
+          className="flex flex-row gap-2 items-center underline underline-offset-4 w-fit"
+        >
+          Redeem Component <ArrowRight />
+        </Link>
+        <Link
           href="/mint-redeem-component"
           className="flex flex-row gap-2 items-center underline underline-offset-4 w-fit"
         >
