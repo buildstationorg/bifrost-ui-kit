@@ -7,10 +7,9 @@ import {
   getDefaultConfig,
 } from "@rainbow-me/rainbowkit";
 import { trustWallet, ledgerWallet } from "@rainbow-me/rainbowkit/wallets";
-import { sepolia, baseSepolia, westendAssetHub } from "wagmi/chains";
+import { sepolia, baseSepolia } from "wagmi/chains";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { WagmiProvider, http } from "wagmi";
-import { RootProvider as FumadocsProvider } from "fumadocs-ui/provider";
 import { ThemeProvider } from "@/components/theme-provider";
 
 const { wallets } = getDefaultWallets();
@@ -47,13 +46,10 @@ const config = getDefaultConfig({
       wallets: [trustWallet, ledgerWallet],
     },
   ],
-  chains: [sepolia, baseSepolia, westendAssetHub, paseoPassethub],
+  chains: [sepolia, baseSepolia, paseoPassethub],
   transports: {
     [sepolia.id]: http(process.env.NEXT_PUBLIC_RPC_URL_SEPOLIA!),
     [baseSepolia.id]: http(process.env.NEXT_PUBLIC_RPC_URL_BASE_SEPOLIA!),
-    [westendAssetHub.id]: http(
-      process.env.NEXT_PUBLIC_RPC_URL_WESTEND_ASSETHUB!
-    ),
     [paseoPassethub.id]: http(process.env.NEXT_PUBLIC_RPC_URL_PASEO_PASSETHUB!),
   },
   ssr: true, // Because it is Nextjs's App router, you need to declare ssr as true
@@ -72,7 +68,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
       <WagmiProvider config={config}>
         <QueryClientProvider client={queryClient}>
           <RainbowKitProvider>
-            <FumadocsProvider>{children}</FumadocsProvider>
+            {children}
           </RainbowKitProvider>
         </QueryClientProvider>
       </WagmiProvider>

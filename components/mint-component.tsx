@@ -23,6 +23,7 @@ import {
 } from "wagmi";
 import type { Token } from "@/types/token";
 import Image from "next/image";
+import { getTestnetMintParams, getTestnetMintParamsWithEip7702, type ValidTestnetChainInput } from "slpx-sdk";
 import { TOKEN_LIST, L2SLPX_CONTRACT_ADDRESS } from "@/lib/constants";
 import { useForm } from "@tanstack/react-form";
 import type { AnyFieldApi } from "@tanstack/react-form";
@@ -32,7 +33,6 @@ import { parseEther, formatEther, Address, maxUint256, erc20Abi } from "viem";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { roundLongDecimals } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
-import { l2SlpxAbi } from "@/lib/abis";
 import { TransactionStatus } from "@/components/transaction-status";
 
 const tokens: Token[] = TOKEN_LIST.filter(
@@ -79,18 +79,12 @@ export default function MintComponent({
     },
     onSubmit: async ({ value }) => {
       if (selectedToken?.symbol === "vETH") {
-        writeContract({
-          address: L2SLPX_CONTRACT_ADDRESS,
-          abi: l2SlpxAbi,
-          functionName: "createOrder",
-          value: parseEther(value.amount),
-          args: [
-            "0x0000000000000000000000000000000000000000",
-            parseEther(value.amount),
-            0,
-            "bifrost",
-          ],
-        });
+        writeContract(getTestnetMintParams(
+          "eth",
+          chainId as ValidTestnetChainInput,
+          value.amount,
+          "bifrost",
+        ));
       }
 
       if (selectedToken?.symbol === "vDOT") {
@@ -104,18 +98,12 @@ export default function MintComponent({
                 functionName: "approve",
                 args: [L2SLPX_CONTRACT_ADDRESS, parseEther(value.amount)],
               },
-              {
-                to: L2SLPX_CONTRACT_ADDRESS,
-                abi: l2SlpxAbi,
-                functionName: "createOrder",
-                args: [
-                  TOKEN_LIST.filter((token) => token.symbol === "DOT")[0]
-                    .address as Address,
-                  parseEther(value.amount),
-                  0,
-                  "bifrost",
-                ],
-              },
+              getTestnetMintParamsWithEip7702(
+                "eth",
+                chainId as ValidTestnetChainInput,
+                value.amount,
+                "bifrost",
+              ),
             ],
           });
         }
@@ -132,18 +120,12 @@ export default function MintComponent({
           }
 
           if (tokenAllowance && tokenAllowance >= parseEther(value.amount)) {
-            writeContract({
-              address: L2SLPX_CONTRACT_ADDRESS,
-              abi: l2SlpxAbi,
-              functionName: "createOrder",
-              args: [
-                TOKEN_LIST.filter((token) => token.symbol === "DOT")[0]
-                  .address as Address,
-                parseEther(value.amount),
-                0,
-                "bifrost",
-              ],
-            });
+            writeContract(getTestnetMintParams(
+              "dot",
+              chainId as ValidTestnetChainInput,
+              value.amount,
+              "bifrost"
+            ));
           }
         }
       }
