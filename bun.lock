@@ -18,7 +18,7 @@
         "next-themes": "^0.4.6",
         "react": "^19.1.1",
         "react-dom": "^19.1.1",
-        "slpx-sdk": "0.0.14",
+        "slpx-sdk": "0.0.16",
         "tailwind-merge": "^3.3.0",
         "vaul": "^1.1.2",
         "viem": "2.x",
@@ -1215,7 +1215,7 @@
 
     "simple-swizzle": ["simple-swizzle@0.2.2", "", { "dependencies": { "is-arrayish": "^0.3.1" } }, "sha512-JA//kQgZtbuY83m+xT+tXJkmJncGMTFT+C+g2h2R9uxkYIrE2yy9sgmcLhCnw57/WSD+Eh3J97FPEDFnbXnDUg=="],
 
-    "slpx-sdk": ["slpx-sdk@0.0.14", "", { "dependencies": { "viem": "^2.34.0" } }, "sha512-Yzrps1IZ0KPpO75Q4mK9OAojZlu67IOSkW4NDwfYFohIRvly15FN0gEb3T4kDtcVsBjPNFUre2wzYH7jSDGBqg=="],
+    "slpx-sdk": ["slpx-sdk@0.0.16", "", { "dependencies": { "viem": "^2.34.0" } }, "sha512-1fvZ4Tu3bcN/t3oMmqQQdbGkOtZ3S4AB+SOdVGPyF7+fIk/D6opQIQxziMIYXk2Wyw2DLIai79fsSlYoOkQ0uw=="],
 
     "socket.io-client": ["socket.io-client@4.8.1", "", { "dependencies": { "@socket.io/component-emitter": "~3.1.0", "debug": "~4.3.2", "engine.io-client": "~6.6.1", "socket.io-parser": "~4.2.4" } }, "sha512-hJVXfu3E28NmzGk8o1sHhN3om52tRvwYeidbj7xKy2eIIse5IoKX3USlS6Tqt3BHAtflLIkCQBkzVrEEfWUyYQ=="],
 

@@ -13,8 +13,6 @@ import {
 } from "wagmi";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
-  TOKEN_LIST,
-  L2SLPX_CONTRACT_ADDRESS,
   YIELD_DELEGATION_VAULT_CONTRACT_ADDRESS,
 } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
@@ -29,7 +27,7 @@ import {
   OctagonAlert,
   EqualApproximately,
 } from "lucide-react";
-import { l2SlpxAbi, yieldDelegationVaultAbi } from "@/lib/abis";
+import { yieldDelegationVaultAbi } from "@/lib/abis";
 import { TransactionStatus } from "@/components/transaction-status";
 import {
   Dialog,
@@ -51,9 +49,20 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
+import { getTestnetConversionParams, type ValidTestnetChainInput } from "slpx-sdk";
+
+type TokenConversionInfo = {
+  operation: number;
+  minOrderAmount: bigint;
+  tokenConversionRate: bigint;
+  orderFee: bigint;
+  outputTokenAddress: Address;
+};
 
 export default function VaultDepositsManagementComponent() {
   const { address } = useAccount();
+
+  const chainId = useChainId();
 
   const {
     data: dataBatch,
@@ -73,22 +82,9 @@ export default function VaultDepositsManagementComponent() {
         args: [address as Address],
       },
       // vETH/ETH conversion info
-      {
-        address: L2SLPX_CONTRACT_ADDRESS,
-        abi: l2SlpxAbi,
-        functionName: "getTokenConversionInfo",
-        args: ["0x0000000000000000000000000000000000000000"],
-      },
+      getTestnetConversionParams("eth", chainId as ValidTestnetChainInput),
       // vDOT/DOT conversion info
-      {
-        address: L2SLPX_CONTRACT_ADDRESS,
-        abi: l2SlpxAbi,
-        functionName: "getTokenConversionInfo",
-        args: [
-          TOKEN_LIST.filter((token) => token.symbol === "DOT")[0]
-            .address as Address,
-        ],
-      },
+      getTestnetConversionParams("dot", chainId as ValidTestnetChainInput),
     ],
   });
 
@@ -139,7 +135,7 @@ export default function VaultDepositsManagementComponent() {
             ) : (
               <p className="text-xl text-muted-foreground">
                 {formatEther(
-                  dataBatch?.[1]?.result?.tokenConversionRate ?? BigInt(0)
+                  (dataBatch?.[1]?.result as TokenConversionInfo)?.tokenConversionRate ?? BigInt(0)
                 )}
               </p>
             )}
@@ -151,7 +147,7 @@ export default function VaultDepositsManagementComponent() {
             ) : (
               <p className="text-xl text-muted-foreground">
                 {formatEther(
-                  dataBatch?.[2]?.result?.tokenConversionRate ?? BigInt(0)
+                  (dataBatch?.[2]?.result as TokenConversionInfo)?.tokenConversionRate ?? BigInt(0)
                 )}
               </p>
             )}
@@ -182,10 +178,10 @@ export default function VaultDepositsManagementComponent() {
                     depositId={depositId}
                     currentTokenConversionRate={{
                       vethTokenConversionRate:
-                        dataBatch?.[1]?.result?.tokenConversionRate ??
+                        (dataBatch?.[1]?.result as TokenConversionInfo)?.tokenConversionRate ??
                         BigInt(0),
                       dotTokenConversionRate:
-                        dataBatch?.[2]?.result?.tokenConversionRate ??
+                        (dataBatch?.[2]?.result as TokenConversionInfo)?.tokenConversionRate ??
                         BigInt(0),
                     }}
                     refetchDataBatch={refetchDataBatch}
