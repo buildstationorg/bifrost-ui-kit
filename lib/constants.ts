@@ -155,7 +155,7 @@ export const TOKEN_LIST3: Token[] = [
   {
     name: "Voucher ETH",
     symbol: "vETH",
-    address: "0x6e0f9f2d25CC586965cBcF7017Ff89836ddeF9CC",
+    address: "0x62CA64454046BbC18e35066A6350Acb0378EB3c2",
     network: "arbitrum-sepolia",
     decimals: 18,
     image: "/veth.svg",
